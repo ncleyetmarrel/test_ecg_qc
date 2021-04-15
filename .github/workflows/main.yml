@@ -41,4 +41,4 @@ jobs:
         
       # Starts airflow workflow
       - name: Airflow workflow 
-        run: airflow dags test useless_workflow $(date +'%Y-%m-%d')
+        run: airflow dags test -S /airflow useless_workflow $(date +'%Y-%m-%d')
