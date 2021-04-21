@@ -3,35 +3,42 @@ from airflow.operators.python import PythonOperator
 from airflow.utils.dates import days_ago
 
 # STEP 1
-# Task 1 : extract data 
+
+# Task 1 : extract data
 def extract_data():
-    #TODO
+    # TODO
     pass
 
-# Task 2 : 
+
+# Task 2 :
 def detect_qrs():
-    #TODO
+    # TODO
     pass
 
-# Task 3 : 
+
+# Task 3 :
 def compute_ratio():
-    #TODO
+    # TODO
     pass
+
 
 # STEP 2
-# Task 4 : 
+
+# Task 4 :
 def apply_ecg_qc():
-    #TODO
+    # TODO
     pass
 
-# Task 5 : 
+
+# Task 5 :
 def write_timestamp_to_db():
-    #TODO
+    # TODO
     pass
 
-# Task 6 : 
+
+# Task 6 :
 def relaunch_task_2_3():
-    #TODO
+    # TODO
     pass
 
 
