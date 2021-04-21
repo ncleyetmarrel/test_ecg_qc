@@ -1,17 +1,13 @@
-# This is a basic workflow to help you get started with Actions
-
 name: CI
 
-# Controls when the action will run. 
 on:
-  # Triggers the workflow on push or pull request events but only for the main branch
+  # Triggers the workflow on push
   push:
     branches: '**'
 
-  # Allows you to run this workflow manually from the Actions tab
+  # Allows to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
 
   lint:
@@ -23,13 +19,20 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          echo PYTHON VERSION: $(python -V)
-  
+          pip install flake8==3.9.1
+      - name: Lint
+        run: flake8 dags/  
+
   sast:
     runs-on: ubuntu-latest
+    container: python:3.9.4-alpine3.13
     steps:
-      - name : print Hello 
-        run : echo 'Hello world test !'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install bandit==1.7.0
+      - name: SAST
+        run: bandit -r dags/ 
   
   unittests:
     runs-on: ubuntu-latest
