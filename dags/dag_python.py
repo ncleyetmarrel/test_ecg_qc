@@ -1,7 +1,5 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-
-from datetime import timedelta
 from airflow.utils.dates import days_ago
 
 # STEP 1
@@ -39,11 +37,8 @@ def relaunch_task_2_3():
 
 with DAG(
     'dag_python',
-    #default_args=default_args,
-    description='A simple tutorial DAG',
-    schedule_interval=timedelta(days=1),
+    description='Run python scripts to test ecg_qc',
     start_date=days_ago(2),
-    tags=['example'],
 ) as dag:
 
     t1 = PythonOperator(
