@@ -2,9 +2,10 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.utils.dates import days_ago
 
+
 # STEP 1
 
-# Task 1 : extract data
+# Task 1 :
 def extract_data():
     # TODO
     pass
