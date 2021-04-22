@@ -27,7 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: SAST 
-      - uses: returntocorp/semgrep-action@v1
+        uses: returntocorp/semgrep-action@v1
         with:
           auditOn: push
           publishToken: ${{ secrets.SEMGREP_APP_TOKEN }}
