@@ -134,6 +134,7 @@ dmypy.json
 # data 
 data/
 notebooks/output/
+output/
 
 # Airflow 
 airflow.db
