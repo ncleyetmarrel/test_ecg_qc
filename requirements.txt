@@ -1,6 +1,5 @@
-flake8
-pytest
-airflow (add constraints)
-wfdb
-numpy ? 
-pandas ?
+apache-airflow==2.0.2
+numpy==1.20.2
+pandas==1.2.4
+biosppy==0.6.1
+wfdb==3.3.0
