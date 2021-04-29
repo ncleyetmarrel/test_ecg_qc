@@ -1,7 +1,9 @@
 import json
 import os
+
 import wfdb
 import pandas as pd
+
 from typing import List, Generator, Tuple, Dict
 
 
@@ -49,7 +51,7 @@ def write_annotations_json(dict_annotations: Dict[str, List[int]]) -> None:
         json.dump(dict_annotations, outfile)
 
 
-def extract_data(data_path: str = '/data') -> None:
+def extract_data(data_path: str = 'data') -> None:
     data_generator = get_annotations_mit_bih_noise(data_path)
     annotations_dict = {}
     print('Beat annotations on dataset mit-bih-noise-stress-test are being \

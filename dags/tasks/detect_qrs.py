@@ -1,8 +1,10 @@
 import os
 import json
+
 import wfdb
 import pandas as pd
 import numpy as np
+
 from typing import Generator, Dict, Tuple, List
 from biosppy.signals.ecg import ecg
 
@@ -58,7 +60,7 @@ def write_detections_json(snr: str, dict_detections:
         json.dump(dict_detections, outfile)
 
 
-def detect_qrs(snr: str, data_path: str = '/data') -> None:
+def detect_qrs(snr: str, data_path: str = 'data') -> None:
     assert snr in ['e24', 'e18', 'e12', 'e06', 'e00', 'e_6']
     dataset = 'mit-bih-noise-stress-test-' + snr
     data_generator = read_mit_bih_noise(snr, data_path)
