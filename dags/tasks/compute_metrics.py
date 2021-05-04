@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 
 from typing import List, Tuple, Dict, Generator
-from tasks.detect_qrs import sampling_frequency, records
+from dags.tasks.detect_qrs import sampling_frequency, records
 
 
 def compute_confusion_matrix_and_delays(frames_detections: List[int],
@@ -252,8 +252,7 @@ def write_perf_csv(algorithm: str, dataset: str, tolerance_ms: int,
         )
 
 
-def compute_ratio(snr: str, tol: int) -> None:
-    assert snr in ['e24', 'e18', 'e12', 'e06', 'e00', 'e_6']
+def compute_metrics(snr: str, tol: int) -> None:
     dataset_rec = 'mit-bih-noise-stress-test-' + snr
     dataset_ann = 'mit_bih_noise_stress'
     dataset = dataset_ann + '_' + snr

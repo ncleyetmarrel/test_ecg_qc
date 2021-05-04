@@ -5,11 +5,9 @@ from psycopg2.extensions import connection, ISOLATION_LEVEL_AUTOCOMMIT
 
 
 def get_connection_to_db(host: str = "localhost", port: int = 5432,
-                         database: str = "test_ecg_qc", user: str = "postgres",
+                         database: str = "postgres", user: str = "postgres",
                          password: str = "postgres") -> connection:
     try:
-        # TODO : check how to set postgres password, since it does not have a
-        # default value after installation
         conn = psycopg2.connect(host=host, port=port,
                                 database=database, user=user,
                                 password=password)
@@ -33,6 +31,7 @@ def get_connection_to_db(host: str = "localhost", port: int = 5432,
 
 def write_metrics_to_db(model_ECG_QC: str, SNR: str, tol: int,
                         date_run: str, table_name: str = "metrics") -> None:
+    # TODO : maybe host=os.getenv('POSTGRES_HOST_URL')
     conn = get_connection_to_db()
     cursor = conn.cursor()
     # Check if the table already exists
@@ -43,7 +42,7 @@ def write_metrics_to_db(model_ECG_QC: str, SNR: str, tol: int,
         # TODO : primary key ?
         cursor.execute(f"CREATE TABLE {table_name} \
             (model_ecg_qc varchar, \
-            snr varchar, \
+            snr integer, \
             tol integer, \
             date_run timestamp, \
             patient varchar, \
@@ -59,10 +58,16 @@ def write_metrics_to_db(model_ECG_QC: str, SNR: str, tol: int,
         )
     # Delete blank row
     df.drop(axis=0, labels='_____', inplace=True)
+    # Change format of SNR
+    try:
+        snr_int = int(SNR[-2:])
+    except ValueError:
+        snr_int = -6  # case where SNR='e_6'
     for index, row in df.iterrows():
+        # TODO: Change format of patient
         cursor.execute(f"INSERT INTO {table_name} VALUES \
             ('{model_ECG_QC}', \
-            '{SNR}', \
+            {snr_int}, \
             {tol}, \
             TIMESTAMP '{date_run}', \
             '{index}', \
@@ -76,3 +81,4 @@ def write_metrics_to_db(model_ECG_QC: str, SNR: str, tol: int,
 
 
 # write_metrics_to_db('None','e_6',50,str(datetime.datetime.now()))
+# service postgresql start

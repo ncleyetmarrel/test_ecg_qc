@@ -1,18 +1,21 @@
+from datetime import datetime
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from datetime import datetime
 
 from tasks.tasks import apply_ecg_qc, write_timestamp_to_db,\
     relaunch_task_2_3
 
 from tasks.extract_data import extract_data
 from tasks.detect_qrs import detect_qrs
-from tasks.compute_ratio import compute_ratio
+from tasks.compute_metrics import compute_metrics
+from tasks.write_metrics_to_db import write_metrics_to_db
 
 # Parameters
+model_ECG_QC = 'None'
 data_path = 'data'
 tolerance = 50
-SNR = 'e_6'
+SNR = 'e24'
+date_run = str(datetime.now())
 
 
 with DAG(
@@ -40,12 +43,24 @@ with DAG(
         dag=dag
     )
 
-    t_compute_ratio = PythonOperator(
-        task_id='compute_ratio',
-        python_callable=compute_ratio,
+    t_compute_metrics = PythonOperator(
+        task_id='compute_metrics',
+        python_callable=compute_metrics,
         op_kwargs={
             'snr': SNR,
             'tol': tolerance
+        },
+        dag=dag
+    )
+
+    t_write_metrics_to_db = PythonOperator(
+        task_id='write_metrics_to_db',
+        python_callable=write_metrics_to_db,
+        op_kwargs={
+            'model_ECG_QC': model_ECG_QC,
+            'SNR': SNR,
+            'tol': tolerance,
+            'date_run': date_run
         },
         dag=dag
     )
@@ -68,5 +83,6 @@ with DAG(
         dag=dag
     )
 
-    t_extract_data >> t_detect_qrs >> t_compute_ratio >> t_apply_ecg_qc >> \
+    t_extract_data >> t_detect_qrs >> t_compute_metrics >> \
+        t_write_metrics_to_db >> t_apply_ecg_qc >> \
         t_write_timestamp_to_db >> t_relaunch_task_2_3

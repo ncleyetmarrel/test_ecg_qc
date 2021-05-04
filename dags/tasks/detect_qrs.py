@@ -16,7 +16,6 @@ def read_mit_bih_noise(snr: str, data_path: str) -> \
     :return: ID and values of sampled signals for each record
     :rtype: tuple(str, dict(str, ndarray))
     """
-    assert snr in ['e24', 'e18', 'e12', 'e06', 'e00', 'e_6']
     rec_list = pd.read_csv(
         f'{data_path}/mit-bih-noise-stress-test-database/RECORDS',
         names=['id']
@@ -61,7 +60,6 @@ def write_detections_json(snr: str, dict_detections:
 
 
 def detect_qrs(snr: str, data_path: str = 'data') -> None:
-    assert snr in ['e24', 'e18', 'e12', 'e06', 'e00', 'e_6']
     dataset = 'mit-bih-noise-stress-test-' + snr
     data_generator = read_mit_bih_noise(snr, data_path)
     records_dict = records[dataset]

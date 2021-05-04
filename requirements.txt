@@ -4,3 +4,4 @@ pandas==1.2.4
 biosppy==0.6.1
 wfdb==3.3.0
 psycopg2-binary==2.8.6
+influxdb==5.3.1
