@@ -41,10 +41,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements_dev.txt
       - name: Unit tests
-        run: | 
-          export PYTHONPATH=$(pwd)
-          echo $PYTHONPATH
-          pytest test/
+        run: python -m pytest test/
 
   build:
     needs: [lint, sast, unittests]
