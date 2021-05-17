@@ -70,7 +70,7 @@ def write_metrics_to_db(model_ECG_QC: str, SNR: str, tol: int,
             {snr_int}, \
             {tol}, \
             TIMESTAMP '{date_run}', \
-            '{index}', \
+            '{index.split('e')[0]}', \
             {row['F(%)']}, \
             {row['P+(%)']}, \
             {row['Se(%)']}, \
