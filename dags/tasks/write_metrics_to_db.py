@@ -4,7 +4,7 @@ from psycopg2 import Error
 from psycopg2.extensions import connection, ISOLATION_LEVEL_AUTOCOMMIT
 
 
-def get_connection_to_db(host: str = "localhost", port: int = 5432,
+def get_connection_to_db(host: str = "postgres", port: int = 5432,
                          database: str = "postgres", user: str = "postgres",
                          password: str = "postgres") -> connection:
     try:

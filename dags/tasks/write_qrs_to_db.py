@@ -8,7 +8,7 @@ DEFAULT_AMPLITUDE_VALUE = 100
 INITIAL_TIMESTAMP = datetime(2021, 2, 15)
 
 
-def get_connection_to_db(host: str = "localhost", port: int = 8086,
+def get_connection_to_db(host: str = "influxdb", port: int = 8086,
                          username: str = "admin", password: str = "auraadmin",
                          dbname: str = "qrs") -> InfluxDBClient:
     client = InfluxDBClient(host=host, port=port, username=username,

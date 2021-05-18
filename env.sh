@@ -8,12 +8,10 @@ export GRAFANA_USERNAME=admin
 export GRAFANA_PASSWORD=admin
 
 # PostgreSQL env vars
-export POSTGRES_HOST_URL=$(hostname -I | cut -d ' ' -f 1)
+export POSTGRES_HOST_URL=localhost
 export POSTGRES_DATABASE=postgres
 export POSTGRES_USER=postgres
 export POSTGRES_PASSWORD=postgres
 
 # Airflow env vars
-export AIRFLOW_HOME=$(pwd)
-export AIRFLOW_CONFIG=$AIRFLOW_HOME/airflow.cfg
-export PYTHONPATH=$(pwd)
+export POSTGRES_DATABASE_AIRFLOW=airflow

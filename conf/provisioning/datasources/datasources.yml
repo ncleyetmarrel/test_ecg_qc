@@ -1,21 +1,10 @@
 apiVersion: 1
 
 deleteDatasources:
-  # - name: aura-mysql
-  #   orgId: 1
   - name: aura-influxDB
     orgId: 1
 
 datasources:
-  # - name: aura-mysql
-  #   orgId: 1
-  #   type: mysql
-  #   access: proxy
-  #   url: :3306
-  #   database: 
-  #   user: 
-  #   password: 
-  #   editable: true
   - name: aura-influxDB
     orgId: 1
     type: influxdb
@@ -28,7 +17,7 @@ datasources:
   - name: aura-postgres
     orgId: 1
     type: postgres
-    url: 192.168.0.23:5432
+    url: 192.168.1.17:5432
     database: postgres
     user: postgres
     secureJsonData:
