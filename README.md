@@ -22,7 +22,5 @@ You can now run these commands :
 ```
 
 ### UI
-To interact with **Airflow** you can follow this link : <localhost:8080>
+You can interact with **Airflow** [here](localhost:8080), and with **Grafana** [here](localhost:3000). Usernames and passwords are *admin* for both.
 
-To interact with **Grafana** and visualize data you can follow this link : <localhost:3000>
- 
