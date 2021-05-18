@@ -23,5 +23,6 @@ You can now run these commands :
 
 ### UI
 To interact with **Airflow** you can follow this link : <localhost:8080>
+
 To interact with **Grafana** and visualize data you can follow this link : <localhost:3000>
  
