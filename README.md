@@ -22,5 +22,5 @@ You can now run these commands :
 ```
 
 ### UI
-You can interact with **Airflow** [here](localhost:8080), and with **Grafana** [here](localhost:3000). Usernames and passwords are *admin* for both.
+You can interact with **Airflow** [here](https://localhost:8080), and with **Grafana** [here](https://localhost:3000). Usernames and passwords are *admin* for both.
 
