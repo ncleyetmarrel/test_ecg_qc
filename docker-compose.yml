@@ -41,7 +41,7 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_USERNAME}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
-      #- GF_INSTALL_PLUGINS=natel-plotly-panel,michaeldmoore-scatter-panel,ae3e-plotly-panel
+      - GF_INSTALL_PLUGINS=ae3e-plotly-panel # v0.3.3
   
   airflow:
     image: apache/airflow:2.0.2

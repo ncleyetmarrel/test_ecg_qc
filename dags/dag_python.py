@@ -2,14 +2,12 @@ from datetime import datetime
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 
-# from tasks.tasks import apply_ecg_qc, write_timestamp_to_db,\
-#     relaunch_task_2_3
-
 from tasks.extract_data import extract_data
 from tasks.detect_qrs import detect_qrs
 from tasks.compute_metrics import compute_metrics
 from tasks.write_metrics_to_db import write_metrics_to_db
 from tasks.write_qrs_to_db import write_qrs_to_db
+from tasks.write_ecg_to_db import write_ecg_to_db
 
 # Parameters
 model_ECG_QC = 'None'
@@ -78,6 +76,16 @@ with DAG(
             dag=dag
         )
 
-        t_extract_data >> t_detect_qrs >> t_compute_metrics >> \
+        t_write_ecg_to_db = PythonOperator(
+            task_id=f'write_ecg_to_db_{SNR}',
+            python_callable=write_ecg_to_db,
+            op_kwargs={
+                'SNR': SNR,
+                'data_path': data_path
+            },
+            dag=dag
+        )
+
+        [t_extract_data, t_detect_qrs] >> t_compute_metrics >> \
             t_write_metrics_to_db
         t_detect_qrs >> t_write_qrs_to_db

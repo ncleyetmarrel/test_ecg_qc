@@ -78,7 +78,3 @@ def write_metrics_to_db(model_ECG_QC: str, SNR: str, tol: int,
             );")
     cursor.close()
     conn.close()
-
-
-# write_metrics_to_db('None','e_6',50,str(datetime.datetime.now()))
-# service postgresql start

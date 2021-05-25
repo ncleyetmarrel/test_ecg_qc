@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from influxdb import InfluxDBClient
 from dags.tasks.detect_qrs import sampling_frequency as sf
 
-DEFAULT_AMPLITUDE_VALUE = 100
+DEFAULT_AMPLITUDE_VALUE = 0
 INITIAL_TIMESTAMP = datetime(2021, 2, 15)
 
 
@@ -13,12 +13,10 @@ def get_connection_to_db(host: str = "influxdb", port: int = 8086,
                          dbname: str = "qrs") -> InfluxDBClient:
     client = InfluxDBClient(host=host, port=port, username=username,
                             password=password)
-    # print("Dropping database.")
-    # client.drop_database(dbname)  # TODO : for tests
     dbs = client.get_list_database()
     if dbname not in [d['name'] for d in dbs if 'name' in d]:
         print("Creating database.")
-        client.create_database(dbname)  # TODO : maybe drop db
+        client.create_database(dbname)
     client.switch_database(dbname)
     return client
 
