@@ -17,7 +17,7 @@ datasources:
   - name: aura-postgres
     orgId: 1
     type: postgres
-    url: localhost:5432
+    url: postgres:5432
     database: postgres
     user: postgres
     secureJsonData:

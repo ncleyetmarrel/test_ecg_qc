@@ -1,212 +1,808 @@
 {
-    "annotations": {
-        "list": [
-            {
-                "builtIn": 1,
-                "datasource": "-- Grafana --",
-                "enable": true,
-                "hide": true,
-                "iconColor": "rgba(0, 211, 255, 1)",
-                "name": "Annotations & Alerts",
-                "type": "dashboard"
-            }
-        ]
-    },
-    "editable": true,
-    "gnetId": null,
-    "graphTooltip": 0,
-    "id": null,
-    "links": [],
-    "panels": [
-        {
-            "aliasColors": {},
-            "bars": false,
-            "dashLength": 10,
-            "dashes": false,
-            "datasource": null,
-            "fieldConfig": {
-                "defaults": {
-                    "custom": {}
-                },
-                "overrides": []
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
+        "datasource": "aura-influxDB",
+        "enable": true,
+        "hide": false,
+        "iconColor": "rgba(255, 96, 96, 1)",
+        "limit": 100,
+        "name": "Detected QRS",
+        "query": "SELECT amplitude FROM \"qrs\".\"autogen\".\"DetectedQRS\" where snr='$snr' and channel='$channel' and patient='$patecg' and $timeFilter",
+        "showIn": 0,
+        "tags": [],
+        "tagsColumn": "QRS",
+        "textColumn": "Detected",
+        "type": "tags"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 1,
+  "iteration": 1622102923944,
+  "links": [],
+  "panels": [
+    {
+      "datasource": "aura-postgres",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 7,
+      "options": {
+        "config": {
+          "displayModeBar": false
+        },
+        "data": [
+          {
+            "line": {
+              "color": "red",
+              "width": 2
             },
-            "fill": 1,
-            "fillGradient": 0,
-            "gridPos": {
-                "h": 9,
-                "w": 12,
-                "x": 0,
-                "y": 0
-            },
-            "hiddenSeries": false,
-            "id": 2,
-            "legend": {
-                "avg": false,
-                "current": false,
-                "max": false,
-                "min": false,
-                "show": true,
-                "total": false,
-                "values": false
-            },
-            "lines": true,
-            "linewidth": 1,
-            "nullPointMode": "null",
-            "options": {
-                "dataLinks": []
-            },
-            "percentage": false,
-            "pointradius": 2,
-            "points": false,
-            "renderer": "flot",
-            "seriesOverrides": [],
-            "spaceLength": 10,
-            "stack": false,
-            "steppedLine": false,
-            "thresholds": [],
-            "timeFrom": null,
-            "timeRegions": [],
-            "timeShift": null,
-            "title": "Panel Title",
-            "tooltip": {
-                "shared": true,
-                "sort": 0,
-                "value_type": "individual"
-            },
-            "type": "graph",
-            "xaxis": {
-                "buckets": null,
-                "mode": "time",
-                "name": null,
-                "show": true,
-                "values": []
-            },
-            "yaxes": [
-                {
-                    "format": "short",
-                    "label": null,
-                    "logBase": 1,
-                    "max": null,
-                    "min": null,
-                    "show": true
-                },
-                {
-                    "format": "short",
-                    "label": null,
-                    "logBase": 1,
-                    "max": null,
-                    "min": null,
-                    "show": true
-                }
+            "mode": "lines+markers",
+            "type": "scatter"
+          }
+        ],
+        "layout": {
+          "font": {
+            "color": "darkgrey"
+          },
+          "margin": {
+            "b": 20,
+            "t": 30
+          },
+          "paper_bgcolor": "rgba(0,0,0,0)",
+          "plot_bgcolor": "rgba(0,0,0,0)",
+          "xaxis": {
+            "autorange": true,
+            "range": [
+              -7.865458015267176,
+              25.865458015267176
             ],
-            "yaxis": {
-                "align": false,
-                "alignLevel": null
+            "title": {
+              "text": "SNR (dB)"
+            },
+            "type": "linear",
+            "zeroline": false
+          },
+          "yaxis": {
+            "autorange": true,
+            "range": [
+              55.67925995878525,
+              103.40074204121476
+            ],
+            "title": {
+              "text": "Positive predictivity (%)"
+            },
+            "type": "linear"
+          }
+        },
+        "onclick": "console.log(data)\nwindow.updateVariables({query:{'var-project':'test'}, partial: true})",
+        "script": "console.log(data)\nconsole.log(variables)\n\nvar all_patients = data.series[0].fields[0].values.buffer\n\nvar counts = {};\nfor (var i = 0; i < all_patients.length; i++) {\n    counts[all_patients[i]] = 1 + (counts[all_patients[i]] || 0);\n}\n\nvar patients = new Set(all_patients)\n\nvar traces = new Array()\n\nvar i = 0\nfor (let p of patients) {\n    var l = counts[p]\n    var trace = {\n    x: data.series[0].fields[1].values.buffer.slice(i,i+l),\n    y: data.series[0].fields[2].values.buffer.slice(i,i+l),\n    name: p\n    };\n    traces.push(trace)\n    i = i + l\n}\nreturn {data:traces};"
+      },
+      "pluginVersion": "7.3.4",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "select patient, snr, positive_predictivity from metrics where patient in ($pat) and model_ecg_qc in ($model) order by patient, snr asc\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
             }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Positive predictivity",
+      "type": "ae3e-plotly-panel"
+    },
+    {
+      "datasource": "aura-postgres",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "id": 9,
+      "options": {
+        "config": {
+          "displayModeBar": false
+        },
+        "data": [
+          {
+            "line": {
+              "color": "red",
+              "width": 2
+            },
+            "mode": "lines+markers",
+            "type": "scatter"
+          }
+        ],
+        "layout": {
+          "font": {
+            "color": "darkgrey"
+          },
+          "margin": {
+            "b": 20,
+            "t": 30
+          },
+          "paper_bgcolor": "rgba(0,0,0,0)",
+          "plot_bgcolor": "rgba(0,0,0,0)",
+          "xaxis": {
+            "autorange": true,
+            "range": [
+              -7.865458015267176,
+              25.865458015267176
+            ],
+            "title": {
+              "text": "SNR (dB)"
+            },
+            "type": "linear",
+            "zeroline": false
+          },
+          "yaxis": {
+            "autorange": true,
+            "range": [
+              56.019251369848156,
+              103.33075163015184
+            ],
+            "title": {
+              "text": "Sensitivity (%)"
+            },
+            "type": "linear"
+          }
+        },
+        "onclick": "console.log(data)\nwindow.updateVariables({query:{'var-project':'test'}, partial: true})",
+        "script": "console.log(data)\nconsole.log(variables)\n\nvar all_patients = data.series[0].fields[0].values.buffer\n\nvar counts = {};\nfor (var i = 0; i < all_patients.length; i++) {\n    counts[all_patients[i]] = 1 + (counts[all_patients[i]] || 0);\n}\n\nvar patients = new Set(all_patients)\n\nvar traces = new Array()\n\nvar i = 0\nfor (let p of patients) {\n    var l = counts[p]\n    var trace = {\n    x: data.series[0].fields[1].values.buffer.slice(i,i+l),\n    y: data.series[0].fields[2].values.buffer.slice(i,i+l),\n    name: p\n    };\n    traces.push(trace)\n    i = i + l\n}\nreturn {data:traces};"
+      },
+      "pluginVersion": "7.3.4",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "select patient, snr, sensitivity from metrics where patient in ($pat) and model_ecg_qc in ($model) order by patient, snr asc\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Sensitivity",
+      "type": "ae3e-plotly-panel"
+    },
+    {
+      "datasource": "aura-postgres",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 7
+      },
+      "id": 4,
+      "options": {
+        "config": {
+          "displayModeBar": false
+        },
+        "data": [
+          {
+            "line": {
+              "color": "red",
+              "width": 2
+            },
+            "mode": "lines+markers",
+            "type": "scatter"
+          }
+        ],
+        "layout": {
+          "font": {
+            "color": "darkgrey"
+          },
+          "margin": {
+            "b": 20,
+            "t": 30
+          },
+          "paper_bgcolor": "rgba(0,0,0,0)",
+          "plot_bgcolor": "rgba(0,0,0,0)",
+          "xaxis": {
+            "autorange": true,
+            "range": [
+              -7.865458015267176,
+              25.865458015267176
+            ],
+            "title": {
+              "text": "SNR (dB)"
+            },
+            "type": "linear",
+            "zeroline": false
+          },
+          "yaxis": {
+            "autorange": true,
+            "range": [
+              55.85468772342733,
+              103.36531327657266
+            ],
+            "title": {
+              "text": "F1-score (%)"
+            },
+            "type": "linear"
+          }
+        },
+        "onclick": "console.log(data)\nwindow.updateVariables({query:{'var-project':'test'}, partial: true})",
+        "script": "console.log(data)\nconsole.log(variables)\n\nvar all_patients = data.series[0].fields[0].values.buffer\n\nvar counts = {};\nfor (var i = 0; i < all_patients.length; i++) {\n    counts[all_patients[i]] = 1 + (counts[all_patients[i]] || 0);\n}\n\nvar patients = new Set(all_patients)\n\nvar traces = new Array()\n\nvar i = 0\nfor (let p of patients) {\n    var l = counts[p]\n    var trace = {\n    x: data.series[0].fields[1].values.buffer.slice(i,i+l),\n    y: data.series[0].fields[2].values.buffer.slice(i,i+l),\n    name: p\n    };\n    traces.push(trace)\n    i = i + l\n}\nreturn {data:traces};"
+      },
+      "pluginVersion": "7.3.4",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "select patient, snr, f1_score from metrics where patient in ($pat) and model_ecg_qc in ($model) order by patient, snr asc\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "F1-score",
+      "type": "ae3e-plotly-panel"
+    },
+    {
+      "datasource": "aura-postgres",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 7
+      },
+      "id": 8,
+      "options": {
+        "config": {
+          "displayModeBar": false
+        },
+        "data": [
+          {
+            "line": {
+              "color": "red",
+              "width": 2
+            },
+            "mode": "lines+markers",
+            "type": "scatter"
+          }
+        ],
+        "layout": {
+          "font": {
+            "color": "darkgrey"
+          },
+          "margin": {
+            "b": 20,
+            "t": 30
+          },
+          "paper_bgcolor": "rgba(0,0,0,0)",
+          "plot_bgcolor": "rgba(0,0,0,0)",
+          "xaxis": {
+            "autorange": true,
+            "range": [
+              -7.865458015267176,
+              25.865458015267176
+            ],
+            "title": {
+              "text": "SNR (dB)"
+            },
+            "type": "linear",
+            "zeroline": false
+          },
+          "yaxis": {
+            "autorange": true,
+            "range": [
+              -6.749479221258134,
+              88.52947722125813
+            ],
+            "title": {
+              "text": "Failure detection (%)"
+            },
+            "type": "linear"
+          }
+        },
+        "onclick": "console.log(data)\nwindow.updateVariables({query:{'var-project':'test'}, partial: true})",
+        "script": "console.log(data)\nconsole.log(variables)\n\nvar all_patients = data.series[0].fields[0].values.buffer\n\nvar counts = {};\nfor (var i = 0; i < all_patients.length; i++) {\n    counts[all_patients[i]] = 1 + (counts[all_patients[i]] || 0);\n}\n\nvar patients = new Set(all_patients)\n\nvar traces = new Array()\n\nvar i = 0\nfor (let p of patients) {\n    var l = counts[p]\n    var trace = {\n    x: data.series[0].fields[1].values.buffer.slice(i,i+l),\n    y: data.series[0].fields[2].values.buffer.slice(i,i+l),\n    name: p\n    };\n    traces.push(trace)\n    i = i + l\n}\nreturn {data:traces};"
+      },
+      "pluginVersion": "7.3.4",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "select patient, snr, failure_detection from metrics where patient in ($pat) and model_ecg_qc in ($model) order by patient, snr asc\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Failure detection",
+      "type": "ae3e-plotly-panel"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "aura-influxDB",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 14
+      },
+      "hiddenSeries": false,
+      "id": 6,
+      "legend": {
+        "alignAsTable": false,
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.3.4",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "ECG",
+          "groupBy": [
+            {
+              "params": [
+                "$__interval"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "orderByTime": "ASC",
+          "policy": "autogen",
+          "query": "SELECT amplitude FROM \"qrs\".\"autogen\".\"ECG\" where snr='$snr' and channel='$channel' and patient='$patecg' and $timeFilter",
+          "rawQuery": true,
+          "refId": "A",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": []
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "ECG + Detected QRS (Hamilton)",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": "Amplitude (mV)",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
         },
         {
-            "cards": {
-                "cardPadding": null,
-                "cardRound": null
-            },
-            "color": {
-                "cardColor": "#b4ff00",
-                "colorScale": "sqrt",
-                "colorScheme": "interpolateOranges",
-                "exponent": 0.5,
-                "mode": "spectrum"
-            },
-            "dataFormat": "timeseries",
-            "datasource": null,
-            "fieldConfig": {
-                "defaults": {
-                    "custom": {
-                        "align": null
-                    },
-                    "mappings": [],
-                    "thresholds": {
-                        "mode": "absolute",
-                        "steps": [
-                            {
-                                "color": "green",
-                                "value": null
-                            },
-                            {
-                                "color": "red",
-                                "value": 80
-                            }
-                        ]
-                    }
-                },
-                "overrides": []
-            },
-            "gridPos": {
-                "h": 8,
-                "w": 12,
-                "x": 12,
-                "y": 0
-            },
-            "heatmap": {},
-            "hideZeroBuckets": false,
-            "highlightCards": true,
-            "id": 4,
-            "legend": {
-                "show": false
-            },
-            "pluginVersion": "7.0.3",
-            "reverseYBuckets": false,
-            "timeFrom": null,
-            "timeShift": null,
-            "title": "Panel Title",
-            "tooltip": {
-                "show": true,
-                "showHistogram": false
-            },
-            "type": "heatmap",
-            "xAxis": {
-                "show": true
-            },
-            "xBucketNumber": null,
-            "xBucketSize": null,
-            "yAxis": {
-                "decimals": null,
-                "format": "short",
-                "logBase": 1,
-                "max": null,
-                "min": null,
-                "show": true,
-                "splitFactor": null
-            },
-            "yBucketBound": "auto",
-            "yBucketNumber": null,
-            "yBucketSize": null
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
         }
-    ],
-    "schemaVersion": 25,
-    "style": "dark",
-    "tags": [],
-    "templating": {
-        "list": []
-    },
-    "time": {
-        "from": "now-6h",
-        "to": "now"
-    },
-    "timepicker": {
-        "refresh_intervals": [
-            "10s",
-            "30s",
-            "1m",
-            "5m",
-            "15m",
-            "30m",
-            "1h",
-            "2h",
-            "1d"
-        ]
-    },
-    "timezone": "",
-    "title": "New dashboard",
-    "uid": null,
-    "version": 0
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    }
+  ],
+  "refresh": false,
+  "schemaVersion": 26,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "tags": [],
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": "aura-postgres",
+        "definition": "select distinct patient from metrics order by patient asc",
+        "error": null,
+        "hide": 0,
+        "includeAll": true,
+        "label": "Patient (metrics)",
+        "multi": true,
+        "name": "pat",
+        "options": [
+          {
+            "selected": true,
+            "text": "All",
+            "value": "$__all"
+          },
+          {
+            "selected": false,
+            "text": "118",
+            "value": "118"
+          },
+          {
+            "selected": false,
+            "text": "119",
+            "value": "119"
+          },
+          {
+            "selected": false,
+            "text": "global",
+            "value": "global"
+          }
+        ],
+        "query": "select distinct patient from metrics order by patient asc",
+        "refresh": 0,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": false,
+          "text": [
+            "None"
+          ],
+          "value": [
+            "None"
+          ]
+        },
+        "datasource": "aura-postgres",
+        "definition": "select distinct model_ecg_qc from metrics ",
+        "error": null,
+        "hide": 0,
+        "includeAll": true,
+        "label": "ECG QC model",
+        "multi": true,
+        "name": "model",
+        "options": [
+          {
+            "selected": false,
+            "text": "All",
+            "value": "$__all"
+          },
+          {
+            "selected": true,
+            "text": "None",
+            "value": "None"
+          }
+        ],
+        "query": "select distinct model_ecg_qc from metrics ",
+        "refresh": 0,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": false,
+          "text": "119",
+          "value": "119"
+        },
+        "datasource": "aura-influxDB",
+        "definition": "",
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": "Patient (ECG)",
+        "multi": false,
+        "name": "patecg",
+        "options": [],
+        "query": "SHOW TAG VALUES ON \"qrs\" FROM \"DetectedQRS\" WITH KEY = \"patient\"",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "MLII",
+          "value": "MLII"
+        },
+        "datasource": "aura-influxDB",
+        "definition": "",
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": "Channel",
+        "multi": false,
+        "name": "channel",
+        "options": [
+          {
+            "selected": true,
+            "text": "MLII",
+            "value": "MLII"
+          },
+          {
+            "selected": false,
+            "text": "V1",
+            "value": "V1"
+          }
+        ],
+        "query": "SHOW TAG VALUES ON \"qrs\" FROM \"DetectedQRS\" WITH KEY = \"channel\"",
+        "refresh": 0,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "0",
+          "value": "0"
+        },
+        "datasource": "aura-influxDB",
+        "definition": "",
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": "SNR (dB)",
+        "multi": false,
+        "name": "snr",
+        "options": [
+          {
+            "selected": true,
+            "text": "0",
+            "value": "0"
+          },
+          {
+            "selected": false,
+            "text": "6",
+            "value": "6"
+          },
+          {
+            "selected": false,
+            "text": "12",
+            "value": "12"
+          },
+          {
+            "selected": false,
+            "text": "18",
+            "value": "18"
+          },
+          {
+            "selected": false,
+            "text": "24",
+            "value": "24"
+          },
+          {
+            "selected": false,
+            "text": "-6",
+            "value": "-6"
+          }
+        ],
+        "query": "SHOW TAG VALUES ON \"qrs\" FROM \"DetectedQRS\" WITH KEY = \"snr\"",
+        "refresh": 0,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      }
+    ]
+  },
+  "time": {
+    "from": "2021-02-15T00:18:35.318Z",
+    "to": "2021-02-15T00:19:18.631Z"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "ECG QC performances",
+  "uid": "PCBa-0CGz",
+  "version": 1
 }

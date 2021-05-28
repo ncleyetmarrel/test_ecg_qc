@@ -44,7 +44,9 @@ services:
       - GF_INSTALL_PLUGINS=ae3e-plotly-panel # v0.3.3
   
   airflow:
-    image: apache/airflow:2.0.2
+    build:
+      context: .
+      dockerfile: DockerfileCustomAirflow
     container_name: aura-airflow
     entrypoint: ./scripts/entrypoint.sh
     deploy:
@@ -52,10 +54,10 @@ services:
         condition: on-failure
     depends_on:
       - postgres
-    user: root
     environment: 
       - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DATABASE_AIRFLOW}
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
     volumes:
       - ./dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs

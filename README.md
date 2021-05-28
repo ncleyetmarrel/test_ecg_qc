@@ -1,6 +1,6 @@
 # Test ECG_QC
 
-This project aims to test the performance of the package [ECG_QC](https://github.com/Aura-healthcare/ecg_qc).
+This project aims to test the performance of the package [ECG_QC](https://github.com/Aura-healthcare/ecg_qc) on the [MIT-BIH Noise Stress Test Database](https://physionet.org/content/nstdb/1.0.0/).
 
 ## Prerequisites
 
@@ -8,11 +8,8 @@ You need to have [docker](https://docs.docker.com/get-docker/) and [docker-compo
 
 ## Get Started
 
-### Clone repository & download data
-Clone this repository and download the [MIT-BIH Noise Stress Test Database](https://physionet.org/content/nstdb/1.0.0/). Add all the files in a *mit-bih-noise-stress-test-database* folder (which will be located in the *data* folder).
-
 ### Set up environment and launch docker-compose
-You can now run these commands :
+After cloning this repository, you can run these commands :
 
 ```sh
     $ source env.sh
@@ -24,3 +21,8 @@ You can now run these commands :
 ### UI
 You can interact with **Airflow** [here](http://localhost:8080), and with **Grafana** [here](http://localhost:3000). Usernames and passwords are *admin* for both.
 
+## Troubleshoot
+If you face some permission problems, run :
+```
+    $ sudo chmod -R 777 output/ data/ logs/ scripts/
+``` 
