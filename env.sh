@@ -8,7 +8,7 @@ export GRAFANA_USERNAME=admin
 export GRAFANA_PASSWORD=admin
 
 # PostgreSQL env vars
-export POSTGRES_HOST_URL=localhost
+export POSTGRES_HOST_URL=postgres
 export POSTGRES_DATABASE=postgres
 export POSTGRES_USER=postgres
 export POSTGRES_PASSWORD=postgres
