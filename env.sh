@@ -6,6 +6,7 @@ export INFLUXDB_DATABASE=hackathon
 # Grafana env vars
 export GRAFANA_USERNAME=admin
 export GRAFANA_PASSWORD=admin
+export POSTGRES_DATABASE_GRAFANA=grafana
 
 # PostgreSQL env vars
 export POSTGRES_HOST_URL=postgres

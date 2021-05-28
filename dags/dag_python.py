@@ -8,6 +8,7 @@ from tasks.compute_metrics import compute_metrics
 from tasks.write_metrics_to_db import write_metrics_to_db
 from tasks.write_qrs_to_db import write_qrs_to_db
 from tasks.write_ecg_to_db import write_ecg_to_db
+from tasks.write_annot_to_db import write_annot_to_db
 
 # Parameters
 model_ECG_QC = 'None'
@@ -32,6 +33,12 @@ with DAG(
                 },
                 dag=dag
             )
+
+    t_write_annot_to_db = PythonOperator(
+            task_id='write_annot_to_db',
+            python_callable=write_annot_to_db,
+            dag=dag
+        )
 
     for SNR in SNRs:
 
@@ -89,3 +96,5 @@ with DAG(
         [t_extract_data, t_detect_qrs] >> t_compute_metrics >> \
             t_write_metrics_to_db
         t_detect_qrs >> t_write_qrs_to_db
+
+    t_extract_data >> t_write_annot_to_db

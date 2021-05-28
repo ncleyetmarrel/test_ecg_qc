@@ -7,7 +7,9 @@
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
+        "limit": 100,
         "name": "Annotations & Alerts",
+        "showIn": 0,
         "type": "dashboard"
       },
       {
@@ -23,6 +25,20 @@
         "tagsColumn": "QRS",
         "textColumn": "Detected",
         "type": "tags"
+      },
+      {
+        "datasource": "aura-influxDB",
+        "enable": true,
+        "hide": false,
+        "iconColor": "#3274D9",
+        "limit": 100,
+        "name": "True QRS",
+        "query": "SELECT amplitude FROM \"qrs\".\"autogen\".\"TrueQRS\" where snr='$snr' and patient='$patecg' and $timeFilter",
+        "showIn": 0,
+        "tags": [],
+        "tagsColumn": "QRS",
+        "textColumn": "True",
+        "type": "tags"
       }
     ]
   },
@@ -30,7 +46,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 1,
-  "iteration": 1622102923944,
+  "iteration": 1622209389641,
   "links": [],
   "panels": [
     {
@@ -674,9 +690,9 @@
       {
         "allValue": null,
         "current": {
-          "selected": false,
-          "text": "119",
-          "value": "119"
+          "selected": true,
+          "text": "118",
+          "value": "118"
         },
         "datasource": "aura-influxDB",
         "definition": "",
@@ -740,8 +756,8 @@
         "allValue": null,
         "current": {
           "selected": true,
-          "text": "0",
-          "value": "0"
+          "text": "24",
+          "value": "24"
         },
         "datasource": "aura-influxDB",
         "definition": "",
@@ -753,7 +769,7 @@
         "name": "snr",
         "options": [
           {
-            "selected": true,
+            "selected": false,
             "text": "0",
             "value": "0"
           },
@@ -773,7 +789,7 @@
             "value": "18"
           },
           {
-            "selected": false,
+            "selected": true,
             "text": "24",
             "value": "24"
           },
@@ -797,8 +813,8 @@
     ]
   },
   "time": {
-    "from": "2021-02-15T00:18:35.318Z",
-    "to": "2021-02-15T00:19:18.631Z"
+    "from": "2021-02-15T00:18:43.273Z",
+    "to": "2021-02-15T00:18:59.977Z"
   },
   "timepicker": {},
   "timezone": "",

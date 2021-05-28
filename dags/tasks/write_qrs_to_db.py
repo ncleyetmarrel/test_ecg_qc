@@ -41,7 +41,7 @@ def write_qrs_to_db(SNR: str) -> None:
                 timestamp = str(INITIAL_TIMESTAMP +
                                 timedelta(
                                     milliseconds=qrs_frame/sf*1000)
-                                )  # TODO : milliseconds in chronograf ??
+                                )
                 point = {
                             'measurement': 'DetectedQRS',
                             'tags': {
