@@ -46,6 +46,13 @@ for channel in iter(signals_dict.keys()):
             df = df.append(pd.DataFrame([[frame_start, frame_end]],
                            columns=["start", "end"]), ignore_index=True)
 
+    # TODO: Ask question to alexis and clement to know what to store
+    # Store length signal quality + length dataframe (+ % noisy segments ?) in Postgresql
+    pass
+
+    # Create (visual) annotations in grafana
+    pass
+
     break
 
 
