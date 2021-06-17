@@ -225,8 +225,8 @@ def write_delays_json(algorithm: str, dataset: str, tolerance_ms: int,
     :type delays_dict: dict(str, dict(str, list(int)))
     """
     os.makedirs('output/perf', exist_ok=True)
-    with open(f'output/perf/{algorithm}_{dataset}_{tolerance_ms}.json', 'w') \
-            as outfile:
+    file_name = f'output/perf/{algorithm}_{dataset}_{tolerance_ms}'
+    with open(file_name + '.json', 'w') as outfile:
         json.dump(delays_dict, outfile)
 
 
@@ -246,16 +246,20 @@ def write_perf_csv(algorithm: str, dataset: str, tolerance_ms: int,
     :type perf_df: DataFrame
     """
     os.makedirs('output/perf', exist_ok=True)
+    file_name = f'output/perf/{algorithm}_{dataset}_{tolerance_ms}'
     perf_df.to_csv(
-        f'output/perf/{algorithm}_{dataset}_{tolerance_ms}' + '.csv',
+        file_name + '.csv',
         sep=',', index=True
         )
 
 
-def compute_metrics(snr: str, tol: int) -> None:
+def compute_metrics(snr: str, tol: int, model: str = 'None') -> None:
     dataset_rec = 'mit-bih-noise-stress-test-' + snr
     dataset_ann = 'mit_bih_noise_stress'
     dataset = dataset_ann + '_' + snr
+    if model != 'None':
+        dataset_ann = dataset_ann + '_' + model
+        dataset = dataset + '_' + model
     algorithm = 'hamilton'
     fs = sampling_frequency
     tol_sup1 = 25

@@ -2,17 +2,6 @@
   "annotations": {
     "list": [
       {
-        "builtIn": 1,
-        "datasource": "-- Grafana --",
-        "enable": true,
-        "hide": true,
-        "iconColor": "rgba(0, 211, 255, 1)",
-        "limit": 100,
-        "name": "Annotations & Alerts",
-        "showIn": 0,
-        "type": "dashboard"
-      },
-      {
         "datasource": "aura-influxDB",
         "enable": true,
         "hide": false,
@@ -39,6 +28,24 @@
         "tagsColumn": "QRS",
         "textColumn": "True",
         "type": "tags"
+      },
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": false,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "limit": 100,
+        "matchAny": false,
+        "name": "Noisy segments",
+        "showIn": 0,
+        "tags": [
+          "$snr",
+          "$channel",
+          "$patecg",
+          "$modelecg"
+        ],
+        "type": "tags"
       }
     ]
   },
@@ -46,7 +53,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 1,
-  "iteration": 1622209389641,
+  "iteration": 1623920220886,
   "links": [],
   "panels": [
     {
@@ -113,7 +120,7 @@
           }
         },
         "onclick": "console.log(data)\nwindow.updateVariables({query:{'var-project':'test'}, partial: true})",
-        "script": "console.log(data)\nconsole.log(variables)\n\nvar all_patients = data.series[0].fields[0].values.buffer\n\nvar counts = {};\nfor (var i = 0; i < all_patients.length; i++) {\n    counts[all_patients[i]] = 1 + (counts[all_patients[i]] || 0);\n}\n\nvar patients = new Set(all_patients)\n\nvar traces = new Array()\n\nvar i = 0\nfor (let p of patients) {\n    var l = counts[p]\n    var trace = {\n    x: data.series[0].fields[1].values.buffer.slice(i,i+l),\n    y: data.series[0].fields[2].values.buffer.slice(i,i+l),\n    name: p\n    };\n    traces.push(trace)\n    i = i + l\n}\nreturn {data:traces};"
+        "script": "console.log(\"DATA\", data)\nconsole.log(\"VARIABLES\", variables)\n\nvar all_patients = data.series[0].fields[0].values.buffer\n\nvar counts = {};\nfor (var i = 0; i < all_patients.length; i++) {\n    counts[all_patients[i]] = 1 + (counts[all_patients[i]] || 0);\n}\n\nvar patients = new Set(all_patients)\n\nvar traces = new Array()\n\nvar i = 0\nfor (let p of patients) {\n    var l = counts[p]\n    var trace = {\n    x: data.series[0].fields[1].values.buffer.slice(i,i+l),\n    y: data.series[0].fields[2].values.buffer.slice(i,i+l),\n    name: p\n    };\n    traces.push(trace)\n    i = i + l\n}\nreturn {data:traces};"
       },
       "pluginVersion": "7.3.4",
       "targets": [
@@ -124,7 +131,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select patient, snr, positive_predictivity from metrics where patient in ($pat) and model_ecg_qc in ($model) order by patient, snr asc\n",
+          "rawSql": "select patient, snr, positive_predictivity, model_ecg_qc from metrics where patient in ($pat) and model_ecg_qc in ($model) order by model_ecg_qc, patient, snr asc\n",
           "refId": "A",
           "select": [
             [
@@ -473,7 +480,7 @@
       "fillGradient": 0,
       "gridPos": {
         "h": 8,
-        "w": 24,
+        "w": 20,
         "x": 0,
         "y": 14
       },
@@ -584,6 +591,167 @@
         "align": false,
         "alignLevel": null
       }
+    },
+    {
+      "datasource": "aura-postgres",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "nb_chunks"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "All chunks"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "super-light-blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "nb_noisy_chunks"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Noisy chunks"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "noisy_pourcent"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Rate of noisy chunks"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 20
+                    },
+                    {
+                      "color": "orange",
+                      "value": 50
+                    },
+                    {
+                      "color": "red",
+                      "value": 70
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "unit",
+                "value": "percent"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 4,
+        "x": 20,
+        "y": 14
+      },
+      "id": 11,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "textMode": "value_and_name"
+      },
+      "pluginVersion": "7.3.4",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "select nb_chunks, nb_noisy_chunks, noisy_pourcent from noisy_info where snr=$snr and chan='$channel' and patient=$patecg and model_ecg_qc='$modelecg'",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Noise stats",
+      "type": "stat"
     }
   ],
   "refresh": false,
@@ -595,8 +763,7 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
-          "tags": [],
+          "selected": false,
           "text": [
             "All"
           ],
@@ -648,7 +815,8 @@
       {
         "allValue": null,
         "current": {
-          "selected": false,
+          "selected": true,
+          "tags": [],
           "text": [
             "None"
           ],
@@ -717,7 +885,7 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "MLII",
           "value": "MLII"
         },
@@ -755,9 +923,9 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
-          "text": "24",
-          "value": "24"
+          "selected": false,
+          "text": "12",
+          "value": "12"
         },
         "datasource": "aura-influxDB",
         "definition": "",
@@ -779,7 +947,7 @@
             "value": "6"
           },
           {
-            "selected": false,
+            "selected": true,
             "text": "12",
             "value": "12"
           },
@@ -789,7 +957,7 @@
             "value": "18"
           },
           {
-            "selected": true,
+            "selected": false,
             "text": "24",
             "value": "24"
           },
@@ -809,16 +977,49 @@
         "tagsQuery": "",
         "type": "query",
         "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": true,
+          "text": "None",
+          "value": "None"
+        },
+        "datasource": "aura-postgres",
+        "definition": "select distinct model_ecg_qc from metrics ",
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": "ECG QC model (ECG)",
+        "multi": false,
+        "name": "modelecg",
+        "options": [
+          {
+            "selected": true,
+            "text": "None",
+            "value": "None"
+          }
+        ],
+        "query": "select distinct model_ecg_qc from metrics ",
+        "refresh": 0,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       }
     ]
   },
   "time": {
-    "from": "2021-02-15T00:18:43.273Z",
-    "to": "2021-02-15T00:18:59.977Z"
+    "from": "2021-02-15T00:18:29.078Z",
+    "to": "2021-02-15T00:18:46.294Z"
   },
   "timepicker": {},
   "timezone": "",
   "title": "ECG QC performances",
   "uid": "PCBa-0CGz",
-  "version": 1
+  "version": 3
 }

@@ -26,3 +26,5 @@ If you face some permission problems, run :
 ```
     $ sudo chmod -R 777 output/ data/ logs/ scripts/
 ``` 
+
+Make sure to empty tables (volumes) and output sub-folders before running the main dag again.

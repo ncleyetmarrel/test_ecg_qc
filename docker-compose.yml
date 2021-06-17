@@ -63,6 +63,7 @@ services:
         condition: on-failure
     depends_on:
       - postgres
+      - grafana # ??
     environment: 
       - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DATABASE_AIRFLOW}
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
@@ -76,6 +77,7 @@ services:
       - ./requirements.txt:/opt/airflow/requirements.txt
     ports:
       - "8080:8080"
+
 
 volumes:
   influxdb-storage:

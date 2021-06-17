@@ -58,6 +58,7 @@ with DAG(
             op_kwargs={
                 'snr': SNR,
                 'tol': tolerance
+                # model
             },
             dag=dag
         )

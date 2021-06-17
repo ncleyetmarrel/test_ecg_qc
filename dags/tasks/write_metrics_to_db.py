@@ -39,7 +39,6 @@ def write_metrics_to_db(model_ECG_QC: str, SNR: str, tol: int,
                    table_name='{table_name}';")
     if not cursor.fetchone()[0]:
         print(f"Table {table_name} does not exist. Creating one...")
-        # TODO : primary key ?
         cursor.execute(f"CREATE TABLE {table_name} \
             (model_ecg_qc varchar, \
             snr integer, \
@@ -52,10 +51,13 @@ def write_metrics_to_db(model_ECG_QC: str, SNR: str, tol: int,
             f1_score real \
             );")
         print(f"Table {table_name} has been created")
-    df = pd.read_csv(
-        f"output/perf/hamilton_mit_bih_noise_stress_{SNR}_{tol}.csv",
-        index_col=0
-        )
+    if model_ECG_QC != 'None':
+        file_name = ("output/perf/hamilton_mit_bih_noise_stress"
+                     f"_{SNR}_{model_ECG_QC}_{tol}.csv")
+    else:
+        file_name = ("output/perf/hamilton_mit_bih_noise_stress"
+                     f"_{SNR}_{tol}.csv")
+    df = pd.read_csv(file_name, index_col=0)
     # Delete blank row
     df.drop(axis=0, labels='_____', inplace=True)
     # Change format of SNR
@@ -64,7 +66,6 @@ def write_metrics_to_db(model_ECG_QC: str, SNR: str, tol: int,
     except ValueError:
         snr_int = -6  # case where SNR='e_6'
     for index, row in df.iterrows():
-        # TODO: Change format of patient
         cursor.execute(f"INSERT INTO {table_name} VALUES \
             ('{model_ECG_QC}', \
             {snr_int}, \
