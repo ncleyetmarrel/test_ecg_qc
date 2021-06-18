@@ -53,7 +53,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 1,
-  "iteration": 1623920220886,
+  "iteration": 1624024181195,
   "links": [],
   "panels": [
     {
@@ -98,8 +98,8 @@
           "xaxis": {
             "autorange": true,
             "range": [
-              -7.865458015267176,
-              25.865458015267176
+              -7.875941737820192,
+              25.87594173782019
             ],
             "title": {
               "text": "SNR (dB)"
@@ -110,8 +110,8 @@
           "yaxis": {
             "autorange": true,
             "range": [
-              55.67925995878525,
-              103.40074204121476
+              50.62312364425163,
+              103.89687635574838
             ],
             "title": {
               "text": "Positive predictivity (%)"
@@ -120,7 +120,7 @@
           }
         },
         "onclick": "console.log(data)\nwindow.updateVariables({query:{'var-project':'test'}, partial: true})",
-        "script": "console.log(\"DATA\", data)\nconsole.log(\"VARIABLES\", variables)\n\nvar all_patients = data.series[0].fields[0].values.buffer\n\nvar counts = {};\nfor (var i = 0; i < all_patients.length; i++) {\n    counts[all_patients[i]] = 1 + (counts[all_patients[i]] || 0);\n}\n\nvar patients = new Set(all_patients)\n\nvar traces = new Array()\n\nvar i = 0\nfor (let p of patients) {\n    var l = counts[p]\n    var trace = {\n    x: data.series[0].fields[1].values.buffer.slice(i,i+l),\n    y: data.series[0].fields[2].values.buffer.slice(i,i+l),\n    name: p\n    };\n    traces.push(trace)\n    i = i + l\n}\nreturn {data:traces};"
+        "script": "console.log(\"DATA\", data)\nconsole.log(\"VARIABLES\", variables)\n\nvar all_patients = data.series[0].fields[0].values.buffer\nvar all_models = data.series[0].fields[3].values.buffer\n\nvar counts_patients = {};\nfor (var i = 0; i < all_patients.length; i++) {\n    counts_patients[all_patients[i]] = 1 + (counts_patients[all_patients[i]] || 0);\n}\nvar counts_models = {};\nfor (var i = 0; i < all_models.length; i++) {\n    counts_models[all_models[i]] = 1 + (counts_models[all_models[i]] || 0);\n}\n\nvar patients = new Set(all_patients)\nvar models = new Set(all_models)\n\nvar traces = new Array()\n\nvar i = 0\nfor (let m of models) {\n    var lmod = counts_models[m]\n    var j = 0\n    for (let p of patients) {\n        var lpat = counts_patients[p] / models.size\n        var trace = {\n        x: data.series[0].fields[1].values.buffer.slice(i+j,i+j+lpat),\n        y: data.series[0].fields[2].values.buffer.slice(i+j,i+j+lpat),\n        name: p + '_' + m\n        };\n        traces.push(trace)\n        j = j + lpat\n    }\n    i = i + lmod \n}\n\nreturn {data:traces};"
       },
       "pluginVersion": "7.3.4",
       "targets": [
@@ -200,8 +200,8 @@
           "xaxis": {
             "autorange": true,
             "range": [
-              -7.865458015267176,
-              25.865458015267176
+              -7.875941737820192,
+              25.87594173782019
             ],
             "title": {
               "text": "SNR (dB)"
@@ -212,8 +212,8 @@
           "yaxis": {
             "autorange": true,
             "range": [
-              56.019251369848156,
-              103.33075163015184
+              47.311790673535796,
+              104.1582103264642
             ],
             "title": {
               "text": "Sensitivity (%)"
@@ -222,7 +222,7 @@
           }
         },
         "onclick": "console.log(data)\nwindow.updateVariables({query:{'var-project':'test'}, partial: true})",
-        "script": "console.log(data)\nconsole.log(variables)\n\nvar all_patients = data.series[0].fields[0].values.buffer\n\nvar counts = {};\nfor (var i = 0; i < all_patients.length; i++) {\n    counts[all_patients[i]] = 1 + (counts[all_patients[i]] || 0);\n}\n\nvar patients = new Set(all_patients)\n\nvar traces = new Array()\n\nvar i = 0\nfor (let p of patients) {\n    var l = counts[p]\n    var trace = {\n    x: data.series[0].fields[1].values.buffer.slice(i,i+l),\n    y: data.series[0].fields[2].values.buffer.slice(i,i+l),\n    name: p\n    };\n    traces.push(trace)\n    i = i + l\n}\nreturn {data:traces};"
+        "script": "console.log(\"DATA\", data)\nconsole.log(\"VARIABLES\", variables)\n\nvar all_patients = data.series[0].fields[0].values.buffer\nvar all_models = data.series[0].fields[3].values.buffer\n\nvar counts_patients = {};\nfor (var i = 0; i < all_patients.length; i++) {\n    counts_patients[all_patients[i]] = 1 + (counts_patients[all_patients[i]] || 0);\n}\nvar counts_models = {};\nfor (var i = 0; i < all_models.length; i++) {\n    counts_models[all_models[i]] = 1 + (counts_models[all_models[i]] || 0);\n}\n\nvar patients = new Set(all_patients)\nvar models = new Set(all_models)\n\nvar traces = new Array()\n\nvar i = 0\nfor (let m of models) {\n    var lmod = counts_models[m]\n    var j = 0\n    for (let p of patients) {\n        var lpat = counts_patients[p] / models.size\n        var trace = {\n        x: data.series[0].fields[1].values.buffer.slice(i+j,i+j+lpat),\n        y: data.series[0].fields[2].values.buffer.slice(i+j,i+j+lpat),\n        name: p + '_' + m\n        };\n        traces.push(trace)\n        j = j + lpat\n    }\n    i = i + lmod \n}\n\nreturn {data:traces};"
       },
       "pluginVersion": "7.3.4",
       "targets": [
@@ -233,7 +233,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select patient, snr, sensitivity from metrics where patient in ($pat) and model_ecg_qc in ($model) order by patient, snr asc\n",
+          "rawSql": "select patient, snr, sensitivity, model_ecg_qc from metrics where patient in ($pat) and model_ecg_qc in ($model) order by model_ecg_qc, patient, snr asc\n",
           "refId": "A",
           "select": [
             [
@@ -302,8 +302,8 @@
           "xaxis": {
             "autorange": true,
             "range": [
-              -7.865458015267176,
-              25.865458015267176
+              -7.875941737820192,
+              25.87594173782019
             ],
             "title": {
               "text": "SNR (dB)"
@@ -314,8 +314,8 @@
           "yaxis": {
             "autorange": true,
             "range": [
-              55.85468772342733,
-              103.36531327657266
+              48.918601953362256,
+              104.03139904663774
             ],
             "title": {
               "text": "F1-score (%)"
@@ -324,7 +324,7 @@
           }
         },
         "onclick": "console.log(data)\nwindow.updateVariables({query:{'var-project':'test'}, partial: true})",
-        "script": "console.log(data)\nconsole.log(variables)\n\nvar all_patients = data.series[0].fields[0].values.buffer\n\nvar counts = {};\nfor (var i = 0; i < all_patients.length; i++) {\n    counts[all_patients[i]] = 1 + (counts[all_patients[i]] || 0);\n}\n\nvar patients = new Set(all_patients)\n\nvar traces = new Array()\n\nvar i = 0\nfor (let p of patients) {\n    var l = counts[p]\n    var trace = {\n    x: data.series[0].fields[1].values.buffer.slice(i,i+l),\n    y: data.series[0].fields[2].values.buffer.slice(i,i+l),\n    name: p\n    };\n    traces.push(trace)\n    i = i + l\n}\nreturn {data:traces};"
+        "script": "console.log(\"DATA\", data)\nconsole.log(\"VARIABLES\", variables)\n\nvar all_patients = data.series[0].fields[0].values.buffer\nvar all_models = data.series[0].fields[3].values.buffer\n\nvar counts_patients = {};\nfor (var i = 0; i < all_patients.length; i++) {\n    counts_patients[all_patients[i]] = 1 + (counts_patients[all_patients[i]] || 0);\n}\nvar counts_models = {};\nfor (var i = 0; i < all_models.length; i++) {\n    counts_models[all_models[i]] = 1 + (counts_models[all_models[i]] || 0);\n}\n\nvar patients = new Set(all_patients)\nvar models = new Set(all_models)\n\nvar traces = new Array()\n\nvar i = 0\nfor (let m of models) {\n    var lmod = counts_models[m]\n    var j = 0\n    for (let p of patients) {\n        var lpat = counts_patients[p] / models.size\n        var trace = {\n        x: data.series[0].fields[1].values.buffer.slice(i+j,i+j+lpat),\n        y: data.series[0].fields[2].values.buffer.slice(i+j,i+j+lpat),\n        name: p + '_' + m\n        };\n        traces.push(trace)\n        j = j + lpat\n    }\n    i = i + lmod \n}\n\nreturn {data:traces};"
       },
       "pluginVersion": "7.3.4",
       "targets": [
@@ -335,7 +335,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select patient, snr, f1_score from metrics where patient in ($pat) and model_ecg_qc in ($model) order by patient, snr asc\n",
+          "rawSql": "select patient, snr, f1_score, model_ecg_qc from metrics where patient in ($pat) and model_ecg_qc in ($model) order by model_ecg_qc, patient, snr asc\n",
           "refId": "A",
           "select": [
             [
@@ -404,8 +404,8 @@
           "xaxis": {
             "autorange": true,
             "range": [
-              -7.865458015267176,
-              25.865458015267176
+              -7.875941737820192,
+              25.87594173782019
             ],
             "title": {
               "text": "SNR (dB)"
@@ -416,8 +416,8 @@
           "yaxis": {
             "autorange": true,
             "range": [
-              -6.749479221258134,
-              88.52947722125813
+              -7.837451278741864,
+              99.30745227874186
             ],
             "title": {
               "text": "Failure detection (%)"
@@ -426,7 +426,7 @@
           }
         },
         "onclick": "console.log(data)\nwindow.updateVariables({query:{'var-project':'test'}, partial: true})",
-        "script": "console.log(data)\nconsole.log(variables)\n\nvar all_patients = data.series[0].fields[0].values.buffer\n\nvar counts = {};\nfor (var i = 0; i < all_patients.length; i++) {\n    counts[all_patients[i]] = 1 + (counts[all_patients[i]] || 0);\n}\n\nvar patients = new Set(all_patients)\n\nvar traces = new Array()\n\nvar i = 0\nfor (let p of patients) {\n    var l = counts[p]\n    var trace = {\n    x: data.series[0].fields[1].values.buffer.slice(i,i+l),\n    y: data.series[0].fields[2].values.buffer.slice(i,i+l),\n    name: p\n    };\n    traces.push(trace)\n    i = i + l\n}\nreturn {data:traces};"
+        "script": "console.log(\"DATA\", data)\nconsole.log(\"VARIABLES\", variables)\n\nvar all_patients = data.series[0].fields[0].values.buffer\nvar all_models = data.series[0].fields[3].values.buffer\n\nvar counts_patients = {};\nfor (var i = 0; i < all_patients.length; i++) {\n    counts_patients[all_patients[i]] = 1 + (counts_patients[all_patients[i]] || 0);\n}\nvar counts_models = {};\nfor (var i = 0; i < all_models.length; i++) {\n    counts_models[all_models[i]] = 1 + (counts_models[all_models[i]] || 0);\n}\n\nvar patients = new Set(all_patients)\nvar models = new Set(all_models)\n\nvar traces = new Array()\n\nvar i = 0\nfor (let m of models) {\n    var lmod = counts_models[m]\n    var j = 0\n    for (let p of patients) {\n        var lpat = counts_patients[p] / models.size\n        var trace = {\n        x: data.series[0].fields[1].values.buffer.slice(i+j,i+j+lpat),\n        y: data.series[0].fields[2].values.buffer.slice(i+j,i+j+lpat),\n        name: p + '_' + m\n        };\n        traces.push(trace)\n        j = j + lpat\n    }\n    i = i + lmod \n}\n\nreturn {data:traces};"
       },
       "pluginVersion": "7.3.4",
       "targets": [
@@ -437,7 +437,7 @@
           "metricColumn": "none",
           "queryType": "randomWalk",
           "rawQuery": true,
-          "rawSql": "select patient, snr, failure_detection from metrics where patient in ($pat) and model_ecg_qc in ($model) order by patient, snr asc\n",
+          "rawSql": "select patient, snr, failure_detection, model_ecg_qc from metrics where patient in ($pat) and model_ecg_qc in ($model) order by model_ecg_qc, patient, snr asc\n",
           "refId": "A",
           "select": [
             [
@@ -465,6 +465,270 @@
       "type": "ae3e-plotly-panel"
     },
     {
+      "datasource": "aura-postgres",
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 14
+      },
+      "id": 12,
+      "options": {
+        "config": {
+          "displayModeBar": false
+        },
+        "data": [
+          {
+            "line": {
+              "color": "red",
+              "width": 2
+            },
+            "mode": "lines+markers",
+            "type": "scatter"
+          }
+        ],
+        "layout": {
+          "font": {
+            "color": "darkgrey"
+          },
+          "margin": {
+            "b": 20,
+            "t": 30
+          },
+          "paper_bgcolor": "rgba(0,0,0,0)",
+          "plot_bgcolor": "rgba(0,0,0,0)",
+          "xaxis": {
+            "autorange": true,
+            "range": [
+              -7.873141724479683,
+              25.873141724479684
+            ],
+            "title": {
+              "text": "SNR (dB)"
+            },
+            "type": "linear",
+            "zeroline": false
+          },
+          "yaxis": {
+            "autorange": true,
+            "range": [
+              30.354763731019524,
+              91.53523626898047
+            ],
+            "title": {
+              "text": "Noisy chunks (%)"
+            },
+            "type": "linear"
+          }
+        },
+        "onclick": "console.log(data)\nwindow.updateVariables({query:{'var-project':'test'}, partial: true})",
+        "script": "console.log(\"DATA\", data)\nconsole.log(\"VARIABLES\", variables)\n\nvar all_patients = data.series[0].fields[0].values.buffer\nvar all_models = data.series[0].fields[3].values.buffer\n\nvar counts_patients = {};\nfor (var i = 0; i < all_patients.length; i++) {\n    counts_patients[all_patients[i]] = 1 + (counts_patients[all_patients[i]] || 0);\n}\nvar counts_models = {};\nfor (var i = 0; i < all_models.length; i++) {\n    counts_models[all_models[i]] = 1 + (counts_models[all_models[i]] || 0);\n}\n\nvar patients = new Set(all_patients)\nvar models = new Set(all_models)\n\nvar traces = new Array()\n\nvar i = 0\nfor (let m of models) {\n    var lmod = counts_models[m]\n    var j = 0\n    for (let p of patients) {\n        var lpat = counts_patients[p] / models.size\n        var trace = {\n        x: data.series[0].fields[1].values.buffer.slice(i+j,i+j+lpat),\n        y: data.series[0].fields[2].values.buffer.slice(i+j,i+j+lpat),\n        name: p + '_' + m\n        };\n        traces.push(trace)\n        j = j + lpat\n    }\n    i = i + lmod \n}\n\nreturn {data:traces};"
+      },
+      "pluginVersion": "7.3.4",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "hide": false,
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "select patient, snr, noisy_pourcent, model_ecg_qc from noisy_info where patient in ($pat) and model_ecg_qc in ($model) and chan='MLII' order by model_ecg_qc, patient, snr asc\n",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Noisy chunks detected",
+      "type": "ae3e-plotly-panel"
+    },
+    {
+      "datasource": "aura-postgres",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {},
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "nb_chunks"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "All chunks"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "super-light-blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "nb_noisy_chunks"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Noisy chunks"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "noisy_pourcent"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Rate of noisy chunks"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 20
+                    },
+                    {
+                      "color": "orange",
+                      "value": 50
+                    },
+                    {
+                      "color": "red",
+                      "value": 70
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "unit",
+                "value": "percent"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 7,
+        "x": 15,
+        "y": 14
+      },
+      "id": 11,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "mean"
+          ],
+          "fields": "",
+          "values": true
+        },
+        "textMode": "value_and_name"
+      },
+      "pluginVersion": "7.3.4",
+      "targets": [
+        {
+          "format": "table",
+          "group": [],
+          "metricColumn": "none",
+          "queryType": "randomWalk",
+          "rawQuery": true,
+          "rawSql": "select nb_chunks, nb_noisy_chunks, noisy_pourcent from noisy_info where snr=$snr and chan='$channel' and patient='$patecg' and model_ecg_qc='$modelecg'",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "value"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "timeColumn": "time",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Noise stats",
+      "type": "stat"
+    },
+    {
       "aliasColors": {},
       "bars": false,
       "dashLength": 10,
@@ -480,9 +744,9 @@
       "fillGradient": 0,
       "gridPos": {
         "h": 8,
-        "w": 20,
+        "w": 24,
         "x": 0,
-        "y": 14
+        "y": 21
       },
       "hiddenSeries": false,
       "id": 6,
@@ -591,167 +855,6 @@
         "align": false,
         "alignLevel": null
       }
-    },
-    {
-      "datasource": "aura-postgres",
-      "fieldConfig": {
-        "defaults": {
-          "custom": {},
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "nb_chunks"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "All chunks"
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "super-light-blue",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "nb_noisy_chunks"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Noisy chunks"
-              },
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "dark-blue",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "noisy_pourcent"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Rate of noisy chunks"
-              },
-              {
-                "id": "decimals",
-                "value": 1
-              },
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "green",
-                      "value": null
-                    },
-                    {
-                      "color": "yellow",
-                      "value": 20
-                    },
-                    {
-                      "color": "orange",
-                      "value": 50
-                    },
-                    {
-                      "color": "red",
-                      "value": 70
-                    }
-                  ]
-                }
-              },
-              {
-                "id": "unit",
-                "value": "percent"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 4,
-        "x": 20,
-        "y": 14
-      },
-      "id": 11,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
-          "fields": "",
-          "values": true
-        },
-        "textMode": "value_and_name"
-      },
-      "pluginVersion": "7.3.4",
-      "targets": [
-        {
-          "format": "table",
-          "group": [],
-          "metricColumn": "none",
-          "queryType": "randomWalk",
-          "rawQuery": true,
-          "rawSql": "select nb_chunks, nb_noisy_chunks, noisy_pourcent from noisy_info where snr=$snr and chan='$channel' and patient=$patecg and model_ecg_qc='$modelecg'",
-          "refId": "A",
-          "select": [
-            [
-              {
-                "params": [
-                  "value"
-                ],
-                "type": "column"
-              }
-            ]
-          ],
-          "timeColumn": "time",
-          "where": [
-            {
-              "name": "$__timeFilter",
-              "params": [],
-              "type": "macro"
-            }
-          ]
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Noise stats",
-      "type": "stat"
     }
   ],
   "refresh": false,
@@ -818,10 +921,10 @@
           "selected": true,
           "tags": [],
           "text": [
-            "None"
+            "All"
           ],
           "value": [
-            "None"
+            "$__all"
           ]
         },
         "datasource": "aura-postgres",
@@ -834,14 +937,24 @@
         "name": "model",
         "options": [
           {
-            "selected": false,
+            "selected": true,
             "text": "All",
             "value": "$__all"
           },
           {
-            "selected": true,
+            "selected": false,
             "text": "None",
             "value": "None"
+          },
+          {
+            "selected": false,
+            "text": "rfc",
+            "value": "rfc"
+          },
+          {
+            "selected": false,
+            "text": "xgb",
+            "value": "xgb"
           }
         ],
         "query": "select distinct model_ecg_qc from metrics ",
@@ -923,7 +1036,7 @@
       {
         "allValue": null,
         "current": {
-          "selected": false,
+          "selected": true,
           "text": "12",
           "value": "12"
         },
@@ -986,7 +1099,7 @@
           "value": "None"
         },
         "datasource": "aura-postgres",
-        "definition": "select distinct model_ecg_qc from metrics ",
+        "definition": "select distinct model_ecg_qc from metrics",
         "error": null,
         "hide": 0,
         "includeAll": false,
@@ -998,9 +1111,19 @@
             "selected": true,
             "text": "None",
             "value": "None"
+          },
+          {
+            "selected": false,
+            "text": "rfc",
+            "value": "rfc"
+          },
+          {
+            "selected": false,
+            "text": "xgb",
+            "value": "xgb"
           }
         ],
-        "query": "select distinct model_ecg_qc from metrics ",
+        "query": "select distinct model_ecg_qc from metrics",
         "refresh": 0,
         "regex": "",
         "skipUrlSync": false,
@@ -1014,8 +1137,8 @@
     ]
   },
   "time": {
-    "from": "2021-02-15T00:18:29.078Z",
-    "to": "2021-02-15T00:18:46.294Z"
+    "from": "2021-02-15T00:19:30.717Z",
+    "to": "2021-02-15T00:19:41.843Z"
   },
   "timepicker": {},
   "timezone": "",

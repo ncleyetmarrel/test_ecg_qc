@@ -28,7 +28,7 @@ def create_noisy_info_table(cursor: cursor):
         cursor.execute("CREATE TABLE noisy_info \
             (model_ecg_qc varchar, \
             snr integer, \
-            patient integer, \
+            patient varchar, \
             chan varchar, \
             nb_chunks integer, \
             nb_noisy_chunks integer, \
@@ -106,6 +106,8 @@ def apply_ecg_qc(SNR: str, model: str, data_path: str) -> None:
         snr_int = int(SNR[-2:])
     except ValueError:
         snr_int = -6  # case where SNR='e_6'
+
+    noisy_pourcent_mlii = []
     while True:
         try:
             patient, signals_dict = next(data_generator)
@@ -156,7 +158,7 @@ def apply_ecg_qc(SNR: str, model: str, data_path: str) -> None:
                 cursor.execute(f"INSERT INTO noisy_info VALUES \
                                ('{model}', \
                                {snr_int}, \
-                               '{int(pat)}', \
+                               '{pat}', \
                                '{channel}', \
                                {nb_chunks}, \
                                {nb_noisy_chunks}, \
@@ -166,8 +168,20 @@ def apply_ecg_qc(SNR: str, model: str, data_path: str) -> None:
                 # Create / update new log files (MLII only)
                 if channel == 'MLII':
                     update_noise_free_files(SNR, model, patient, df)
+                    noisy_pourcent_mlii.append(noisy_pourcent)
 
         except StopIteration:
+            # Add the global noisy pourcent in the table
+            noisy_pourcent_global = sum(noisy_pourcent_mlii)/len(noisy_pourcent_mlii)
+            cursor.execute(f"INSERT INTO noisy_info VALUES \
+                           ('{model}', \
+                           {snr_int}, \
+                           'global', \
+                           'MLII', \
+                           NULL, \
+                           NULL, \
+                           {noisy_pourcent_global} \
+                           );")
             cursor.close()
             conn.close()
             break

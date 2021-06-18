@@ -9,9 +9,10 @@ from tasks.write_metrics_to_db import write_metrics_to_db
 from tasks.write_qrs_to_db import write_qrs_to_db
 from tasks.write_ecg_to_db import write_ecg_to_db
 from tasks.write_annot_to_db import write_annot_to_db
+from tasks.apply_ecg_qc import apply_ecg_qc
 
 # Parameters
-model_ECG_QC = 'None'
+model_ECG_QC = ['rfc', 'xgb']
 data_path = 'data'
 tolerance = 50
 SNRs = ['e_6', 'e00', 'e06', 'e12', 'e18', 'e24']
@@ -19,10 +20,11 @@ date_run = str(datetime.now())
 
 
 with DAG(
-    'dag_python',
+    'test_ecg_qc',
     description='Run python scripts to test ecg_qc',
     start_date=datetime(2021, 4, 22),
-    schedule_interval=None
+    schedule_interval=None,
+    concurrency=12
 ) as dag:
 
     t_extract_data = PythonOperator(
@@ -57,8 +59,8 @@ with DAG(
             python_callable=compute_metrics,
             op_kwargs={
                 'snr': SNR,
-                'tol': tolerance
-                # model
+                'tol': tolerance,
+                'model': 'None'
             },
             dag=dag
         )
@@ -67,7 +69,7 @@ with DAG(
             task_id=f'write_metrics_to_db_{SNR}',
             python_callable=write_metrics_to_db,
             op_kwargs={
-                'model_ECG_QC': model_ECG_QC,
+                'model_ECG_QC': 'None',
                 'SNR': SNR,
                 'tol': tolerance,
                 'date_run': date_run
@@ -97,5 +99,44 @@ with DAG(
         [t_extract_data, t_detect_qrs] >> t_compute_metrics >> \
             t_write_metrics_to_db
         t_detect_qrs >> t_write_qrs_to_db
+
+        for model in model_ECG_QC:
+
+            t_apply_ecg_qc = PythonOperator(
+                task_id=f'apply_ecg_qc_{SNR}_{model}',
+                python_callable=apply_ecg_qc,
+                op_kwargs={
+                    'SNR': SNR,
+                    'model': model,
+                    'data_path': data_path
+                },
+                dag=dag
+            )
+
+            t_compute_new_metrics = PythonOperator(
+                task_id=f'compute_metrics_{SNR}_{model}',
+                python_callable=compute_metrics,
+                op_kwargs={
+                    'snr': SNR,
+                    'tol': tolerance,
+                    'model': model
+                },
+                dag=dag
+            )
+
+            t_write_new_metrics_to_db = PythonOperator(
+                task_id=f'write_metrics_to_db_{SNR}_{model}',
+                python_callable=write_metrics_to_db,
+                op_kwargs={
+                    'model_ECG_QC': model,
+                    'SNR': SNR,
+                    'tol': tolerance,
+                    'date_run': date_run
+                },
+                dag=dag
+            )
+
+            [t_detect_qrs, t_extract_data] >> t_apply_ecg_qc >> \
+                t_compute_new_metrics >> t_write_new_metrics_to_db
 
     t_extract_data >> t_write_annot_to_db
