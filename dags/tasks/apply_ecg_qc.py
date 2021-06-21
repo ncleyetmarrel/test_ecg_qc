@@ -172,7 +172,8 @@ def apply_ecg_qc(SNR: str, model: str, data_path: str) -> None:
 
         except StopIteration:
             # Add the global noisy pourcent in the table
-            noisy_pourcent_global = sum(noisy_pourcent_mlii)/len(noisy_pourcent_mlii)
+            noisy_pourcent_global = \
+                sum(noisy_pourcent_mlii)/len(noisy_pourcent_mlii)
             cursor.execute(f"INSERT INTO noisy_info VALUES \
                            ('{model}', \
                            {snr_int}, \
