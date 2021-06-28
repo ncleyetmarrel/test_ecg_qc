@@ -13,10 +13,7 @@ from dags.tasks.write_metrics_to_db import get_connection_to_db
 
 INITIAL_TIMESTAMP = datetime(2021, 2, 15)
 
-lib_path = os.path.dirname(ecg_qc.__file__)
-
-# model = 'rfc'  # or xgb
-# /!\ pip not up to date (no model for specific segment len)
+# lib_path = os.path.dirname(ecg_qc.__file__)
 
 
 def create_noisy_info_table(cursor: cursor):
@@ -92,7 +89,11 @@ def update_noise_free_files(SNR: str, model: str, patient: str,
 
 
 def apply_ecg_qc(SNR: str, model: str, data_path: str) -> None:
-    model_path = f"{lib_path}/ml/models/{model}.joblib"
+    # model_path = f"{lib_path}/ml/models/{model}.joblib"
+    if model == 'model':
+        model_path = 'models/model.pkl'
+    else:
+        model_path = f"models/{model}.joblib"
     data_generator = read_mit_bih_noise(SNR, data_path)
     algo = ecg_qc.ecg_qc(sampling_frequency=sf, model=model_path)
     length_chunk = 9  # seconds TODO parse model

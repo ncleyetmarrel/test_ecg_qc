@@ -16,3 +16,13 @@ export POSTGRES_PASSWORD=postgres
 
 # Airflow env vars
 export POSTGRES_DATABASE_AIRFLOW=airflow
+
+# IDs
+export AIRFLOW_UID=$(id -u)
+export AIRFLOW_GID=$(id -g)
+
+# Ports
+export POSTGRES_PORT=5432
+export INFLUXDB_PORT=8086
+export AIRFLOW_PORT=8080
+export GRAFANA_PORT=3000
