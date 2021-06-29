@@ -13,8 +13,8 @@ from tasks.apply_ecg_qc import apply_ecg_qc
 from tasks.delete_model import delete_model
 
 # Parameters
-model_ECG_QC = ['rfc', 'xgb']
-model_to_delete = ['xgb']
+model_ECG_QC = ['rfc', 'xgb', 'model']
+model_to_delete = []
 data_path = 'data'
 tolerance = 50
 SNRs = ['e_6', 'e00', 'e06', 'e12', 'e18', 'e24']
