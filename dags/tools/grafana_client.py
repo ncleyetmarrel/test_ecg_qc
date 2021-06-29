@@ -9,12 +9,6 @@ import pandas as pd
 import requests
 
 
-MESSAGE = "message"
-# key =
-# eyJrIjoiSjRaQjdDeVhFRGxZUW9RS1RPU25nb2NFdGZBRVVhTnciLCJuIjoiYXBpa2V5bG9jYWwiLCJpZCI6MX0=
-# grafana url = http://localhost:3000
-
-
 class GrafanaClient:
     """
     This class is used to do actions in Grafana as create annotations,
@@ -97,16 +91,24 @@ class GrafanaClient:
                 return p['id']
         return None
 
-    # def get_annotation_ids_filtered_by(self, tags_list: list) -> \
-    #         List[Optional[int]]:
-    #     """Returns all annotations ids having tags matching tags_list."""
-    #     tags_api_query = "api/annotations?tags=" + "&tags=".join(tags_list)
-    #     url = os.path.join(self.__grafana_url, tags_api_query)
+    def get_annotation_ids_filtered_by(self, tags_list: list) -> \
+            List[Optional[int]]:
+        """Returns all annotations ids having tags matching tags_list."""
+        tags_api_query = "api/annotations?tags=" + "&tags=".join(tags_list) \
+            + "&limit=1000000"
+        url = os.path.join(self.__grafana_url, tags_api_query)
 
-    #     response = requests.get(url, headers=self.__header, data={},
-    #                             verify=self.verify)
+        response = requests.get(url, headers=self.__header, data={},
+                                verify=self.verify)
+        return [annotation["id"] for annotation in response.json()]
 
-    #     return [annotation["id"] for annotation in response.json()]
+    def delete_annotation_filtered_by(self, tags_list: list) -> None:
+        """Delete all annotations having tags matching tags_list."""
+        ann_ids = self.get_annotation_ids_filtered_by(tags_list)
+        for ann_id in ann_ids:
+            url = os.path.join(self.__grafana_url, f"api/annotations/{ann_id}")
+            requests.delete(url, headers=self.__header, data={},
+                            verify=self.verify)
 
     # def patch_annotation(self, annotation_id: int,
     #                      updated_timestamp: Optional[str] = None,

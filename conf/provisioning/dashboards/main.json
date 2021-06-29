@@ -53,7 +53,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 1,
-  "iteration": 1624024181195,
+  "iteration": 1624961480236,
   "links": [],
   "panels": [
     {
@@ -866,7 +866,7 @@
       {
         "allValue": null,
         "current": {
-          "selected": false,
+          "selected": true,
           "text": [
             "All"
           ],
@@ -882,30 +882,9 @@
         "label": "Patient (metrics)",
         "multi": true,
         "name": "pat",
-        "options": [
-          {
-            "selected": true,
-            "text": "All",
-            "value": "$__all"
-          },
-          {
-            "selected": false,
-            "text": "118",
-            "value": "118"
-          },
-          {
-            "selected": false,
-            "text": "119",
-            "value": "119"
-          },
-          {
-            "selected": false,
-            "text": "global",
-            "value": "global"
-          }
-        ],
+        "options": [],
         "query": "select distinct patient from metrics order by patient asc",
-        "refresh": 0,
+        "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
@@ -919,7 +898,6 @@
         "allValue": null,
         "current": {
           "selected": true,
-          "tags": [],
           "text": [
             "All"
           ],
@@ -935,30 +913,9 @@
         "label": "ECG QC model",
         "multi": true,
         "name": "model",
-        "options": [
-          {
-            "selected": true,
-            "text": "All",
-            "value": "$__all"
-          },
-          {
-            "selected": false,
-            "text": "None",
-            "value": "None"
-          },
-          {
-            "selected": false,
-            "text": "rfc",
-            "value": "rfc"
-          },
-          {
-            "selected": false,
-            "text": "xgb",
-            "value": "xgb"
-          }
-        ],
+        "options": [],
         "query": "select distinct model_ecg_qc from metrics ",
-        "refresh": 0,
+        "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 1,
@@ -971,7 +928,7 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "118",
           "value": "118"
         },
@@ -1010,20 +967,9 @@
         "label": "Channel",
         "multi": false,
         "name": "channel",
-        "options": [
-          {
-            "selected": true,
-            "text": "MLII",
-            "value": "MLII"
-          },
-          {
-            "selected": false,
-            "text": "V1",
-            "value": "V1"
-          }
-        ],
+        "options": [],
         "query": "SHOW TAG VALUES ON \"qrs\" FROM \"DetectedQRS\" WITH KEY = \"channel\"",
-        "refresh": 0,
+        "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
@@ -1036,7 +982,7 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "12",
           "value": "12"
         },
@@ -1048,40 +994,9 @@
         "label": "SNR (dB)",
         "multi": false,
         "name": "snr",
-        "options": [
-          {
-            "selected": false,
-            "text": "0",
-            "value": "0"
-          },
-          {
-            "selected": false,
-            "text": "6",
-            "value": "6"
-          },
-          {
-            "selected": true,
-            "text": "12",
-            "value": "12"
-          },
-          {
-            "selected": false,
-            "text": "18",
-            "value": "18"
-          },
-          {
-            "selected": false,
-            "text": "24",
-            "value": "24"
-          },
-          {
-            "selected": false,
-            "text": "-6",
-            "value": "-6"
-          }
-        ],
+        "options": [],
         "query": "SHOW TAG VALUES ON \"qrs\" FROM \"DetectedQRS\" WITH KEY = \"snr\"",
-        "refresh": 0,
+        "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 0,
@@ -1094,7 +1009,7 @@
       {
         "allValue": null,
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "None",
           "value": "None"
         },
@@ -1106,25 +1021,9 @@
         "label": "ECG QC model (ECG)",
         "multi": false,
         "name": "modelecg",
-        "options": [
-          {
-            "selected": true,
-            "text": "None",
-            "value": "None"
-          },
-          {
-            "selected": false,
-            "text": "rfc",
-            "value": "rfc"
-          },
-          {
-            "selected": false,
-            "text": "xgb",
-            "value": "xgb"
-          }
-        ],
+        "options": [],
         "query": "select distinct model_ecg_qc from metrics",
-        "refresh": 0,
+        "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 1,
