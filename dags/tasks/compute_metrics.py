@@ -62,10 +62,20 @@ def get_scores(true_pos: int, false_pos: int, false_neg: int) -> List[float]:
      F1-score
     :rtype: list(float)
     """
-    positive_predictivity = round(100 * true_pos / (true_pos + false_pos), 2)
-    recall = round(100 * true_pos / (true_pos + false_neg), 2)
-    f1_score = round(100 * 2 * true_pos / ((2 * true_pos) + false_pos +
-                     false_neg), 2)
+    if true_pos + false_pos == 0:
+        positive_predictivity = 0
+    else:
+        positive_predictivity = round(
+            100 * true_pos / (true_pos + false_pos), 2)
+    if true_pos + false_neg == 0:
+        recall = 0
+    else:
+        recall = round(100 * true_pos / (true_pos + false_neg), 2)
+    if (2 * true_pos) + false_pos + false_neg == 0:
+        f1_score = 0
+    else:
+        f1_score = round(100 * 2 * true_pos / ((2 * true_pos) + false_pos +
+                         false_neg), 2)
     return [positive_predictivity, recall, f1_score]
 
 
@@ -116,7 +126,10 @@ def get_perf_dataset(records_dict: Dict[str, List[str]],
             tolerance
             )
         false_tol = false_pos_tol + false_neg_tol
-        false_per_tol = round(100 * false_tol / number_beats, 2)
+        if number_beats == 0:
+            false_per_tol = 0
+        else:
+            false_per_tol = round(100 * false_tol / number_beats, 2)
         pos_predict_tol, recall_tol, f1_tol = get_scores(
             true_pos_tol, false_pos_tol, false_neg_tol
             )
@@ -127,7 +140,10 @@ def get_perf_dataset(records_dict: Dict[str, List[str]],
             tolerance_sup1
             )
         false_sup1 = false_pos_sup1 + false_neg_sup1
-        false_per_sup1 = round(100 * false_sup1 / number_beats, 2)
+        if number_beats == 0:
+            false_per_sup1 = 0
+        else:
+            false_per_sup1 = round(100 * false_sup1 / number_beats, 2)
         pos_predict_sup1, recall_sup1, f1_sup1 = get_scores(
             true_pos_sup1, false_pos_sup1, false_neg_sup1
             )
@@ -138,7 +154,10 @@ def get_perf_dataset(records_dict: Dict[str, List[str]],
             tolerance_sup2
             )
         false_sup2 = false_pos_sup2 + false_neg_sup2
-        false_per_sup2 = round(100 * false_sup2 / number_beats, 2)
+        if number_beats == 0:
+            false_per_sup2 = 0
+        else:
+            false_per_sup2 = round(100 * false_sup2 / number_beats, 2)
         pos_predict_sup2, recall_sup2, f1_sup2 = get_scores(
             true_pos_sup2, false_pos_sup2, false_neg_sup2
             )
@@ -189,11 +208,15 @@ def add_eval_global_line(performances_df: pd.DataFrame, nb_of_records: int,
     glob_pos_predict, glob_recall, glob_f1 = get_scores(
         total_true_pos, total_false_pos, total_false_neg
         )
+    if total_beats == 0:
+        global_failure = 0
+    else:
+        global_failure = round(
+            (100 * (total_false_pos + total_false_neg) / total_beats), 2)
     global_perf = pd.DataFrame(
         [[total_beats, total_false_pos, total_false_neg, (total_false_pos +
                                                           total_false_neg),
-          round((100 * (total_false_pos + total_false_neg) / total_beats), 2),
-          glob_pos_predict, glob_recall, glob_f1]],
+          global_failure, glob_pos_predict, glob_recall, glob_f1]],
         index=['global'],
         columns=['nbofbeats', 'FP', 'FN', 'F', 'F(%)', 'P+(%)',
                  'Se(%)', 'F1(%)'])
