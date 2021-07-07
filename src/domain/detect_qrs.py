@@ -1,12 +1,58 @@
 import os
 import json
+from typing import Generator, Dict, Tuple, List
 
 import wfdb
 import pandas as pd
 import numpy as np
-
-from typing import Generator, Dict, Tuple, List
 from biosppy.signals.ecg import ecg
+
+
+# MIT-BIH Noise Stress Database
+# records and their channels
+
+mit_bih_noise_stress_test_e24 = {
+    '118e24': ['MLII', 'V1'],
+    '119e24': ['MLII', 'V1']
+}
+
+mit_bih_noise_stress_test_e18 = {
+    '118e18': ['MLII', 'V1'],
+    '119e18': ['MLII', 'V1']
+}
+
+mit_bih_noise_stress_test_e12 = {
+    '118e12': ['MLII', 'V1'],
+    '119e12': ['MLII', 'V1']
+}
+
+mit_bih_noise_stress_test_e06 = {
+    '118e06': ['MLII', 'V1'],
+    '119e06': ['MLII', 'V1']
+}
+
+mit_bih_noise_stress_test_e00 = {
+    '118e00': ['MLII', 'V1'],
+    '119e00': ['MLII', 'V1']
+}
+
+mit_bih_noise_stress_test_e_6 = {
+    '118e_6': ['MLII', 'V1'],
+    '119e_6': ['MLII', 'V1']
+}
+
+# generator to get names of records and their channels
+RECORDS = {
+    'mit-bih-noise-stress-test-e24': mit_bih_noise_stress_test_e24,
+    'mit-bih-noise-stress-test-e18': mit_bih_noise_stress_test_e18,
+    'mit-bih-noise-stress-test-e12': mit_bih_noise_stress_test_e12,
+    'mit-bih-noise-stress-test-e06': mit_bih_noise_stress_test_e06,
+    'mit-bih-noise-stress-test-e00': mit_bih_noise_stress_test_e00,
+    'mit-bih-noise-stress-test-e_6': mit_bih_noise_stress_test_e_6,
+}
+
+# signals' sampling frequency
+SAMPLING_FREQUENCY = 360
 
 
 def read_mit_bih_noise(snr: str, data_path: str) -> \
@@ -62,7 +108,7 @@ def write_detections_json(snr: str, dict_detections:
 def detect_qrs(snr: str, data_path: str = 'data') -> None:
     dataset = 'mit-bih-noise-stress-test-' + snr
     data_generator = read_mit_bih_noise(snr, data_path)
-    records_dict = records[dataset]
+    records_dict = RECORDS[dataset]
     detections_dict = {}
     counter = 0
     print(f'Detection with Hamilton on dataset {dataset} is running....')
@@ -73,7 +119,7 @@ def detect_qrs(snr: str, data_path: str = 'data') -> None:
             detections_rec_dict = {}
             for id_sig in range(len(sig_names)):
                 qrs_frames = run_hamilton_qrs_detector(
-                    record_sigs[sig_names[id_sig]], sampling_frequency
+                    record_sigs[sig_names[id_sig]], SAMPLING_FREQUENCY
                     )
                 detections_rec_dict[sig_names[id_sig]] = qrs_frames
             detections_dict[record_id] = detections_rec_dict
@@ -84,64 +130,3 @@ def detect_qrs(snr: str, data_path: str = 'data') -> None:
             print(f'Detection with Hamilton on dataset {dataset} \
             was successful....')
             break
-
-
-# MIT-BIH Noise Stress Database
-# records and their channels
-# s/o to Marie !!!
-
-mit_bih_noise_stress_test_e24 = {
-    '118e24': ['MLII', 'V1'],
-    '119e24': ['MLII', 'V1']
-}
-
-mit_bih_noise_stress_test_e18 = {
-    '118e18': ['MLII', 'V1'],
-    '119e18': ['MLII', 'V1']
-}
-
-mit_bih_noise_stress_test_e12 = {
-    '118e12': ['MLII', 'V1'],
-    '119e12': ['MLII', 'V1']
-}
-
-mit_bih_noise_stress_test_e06 = {
-    '118e06': ['MLII', 'V1'],
-    '119e06': ['MLII', 'V1']
-}
-
-mit_bih_noise_stress_test_e00 = {
-    '118e00': ['MLII', 'V1'],
-    '119e00': ['MLII', 'V1']
-}
-
-mit_bih_noise_stress_test_e_6 = {
-    '118e_6': ['MLII', 'V1'],
-    '119e_6': ['MLII', 'V1']
-}
-
-# generator for records' readers
-'''
-dataset_generators = {
-    'mit-bih-noise-stress-test-e24': read_mit_bih_noise('e24'),
-    'mit-bih-noise-stress-test-e18': read_mit_bih_noise('e18'),
-    'mit-bih-noise-stress-test-e12': read_mit_bih_noise('e12'),
-    'mit-bih-noise-stress-test-e06': read_mit_bih_noise('e06'),
-    'mit-bih-noise-stress-test-e00': read_mit_bih_noise('e00'),
-    'mit-bih-noise-stress-test-e_6': read_mit_bih_noise('e_6'),
-
-}
-'''
-
-# generator to get names of records and their channels
-records = {
-    'mit-bih-noise-stress-test-e24': mit_bih_noise_stress_test_e24,
-    'mit-bih-noise-stress-test-e18': mit_bih_noise_stress_test_e18,
-    'mit-bih-noise-stress-test-e12': mit_bih_noise_stress_test_e12,
-    'mit-bih-noise-stress-test-e06': mit_bih_noise_stress_test_e06,
-    'mit-bih-noise-stress-test-e00': mit_bih_noise_stress_test_e00,
-    'mit-bih-noise-stress-test-e_6': mit_bih_noise_stress_test_e_6,
-}
-
-# signals' sampling frequency
-sampling_frequency = 360

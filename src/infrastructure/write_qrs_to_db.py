@@ -2,29 +2,35 @@ import json
 from datetime import datetime, timedelta
 
 from influxdb import InfluxDBClient
-from dags.tasks.detect_qrs import sampling_frequency as sf
+
+from src.domain.detect_qrs import SAMPLING_FREQUENCY as sf
 
 DEFAULT_AMPLITUDE_VALUE = 0
 INITIAL_TIMESTAMP = datetime(2021, 2, 15)
 
+INFLUXDB_HOST = "influxdb"
+INFLUXDB_USERNAME = "admin"
+INFLUXDB_PASSWORD = "auraadmin"
+INFLUXDB_DBNAME = "qrs"
+INFLUXDB_PORT = 8086
 
-def get_connection_to_db(host: str = "influxdb", port: int = 8086,
-                         username: str = "admin", password: str = "auraadmin",
-                         dbname: str = "qrs") -> InfluxDBClient:
-    client = InfluxDBClient(host=host, port=port, username=username,
-                            password=password)
+QRS_FILE_PREFIX = 'output/frames/hamilton_mit_bih_noise_stress'
+
+
+def connect_client_to_db(client: InfluxDBClient, dbname: str) -> None:
     dbs = client.get_list_database()
     if dbname not in [d['name'] for d in dbs if 'name' in d]:
-        print("Creating database.")
+        print(f"Creating database {dbname}.")
         client.create_database(dbname)
     client.switch_database(dbname)
-    return client
 
 
 def write_qrs_to_db(SNR: str) -> None:
-    client = get_connection_to_db()
-    # Load QRS json
-    json_file = f'output/frames/hamilton_mit_bih_noise_stress_{SNR}.json'
+    influx_client = InfluxDBClient(host=INFLUXDB_HOST, port=INFLUXDB_PORT,
+                                   username=INFLUXDB_USERNAME,
+                                   password=INFLUXDB_PASSWORD)
+    connect_client_to_db(influx_client, INFLUXDB_DBNAME)
+    json_file = f'{QRS_FILE_PREFIX}_{SNR}.json'
     with open(json_file) as qrs_json:
         qrs_dict = json.load(qrs_json)
     qrs_json.close()
@@ -55,5 +61,5 @@ def write_qrs_to_db(SNR: str) -> None:
                             }
                 }
                 points.append(point)
-    client.write_points(points=points, time_precision='u')
-    client.close()
+    influx_client.write_points(points=points, time_precision='u')
+    influx_client.close()

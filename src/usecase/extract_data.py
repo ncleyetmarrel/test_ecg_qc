@@ -1,15 +1,20 @@
 import json
 import os
+from typing import List, Generator, Tuple, Dict
 
 import wfdb
 import pandas as pd
 
-from typing import List, Generator, Tuple, Dict
-
 
 # annotations corresponding to beats so related to QRS complexes' localisations
-mit_beat_labels = ['N', 'L', 'R', 'B', 'A', 'a', 'J', 'S', 'V', 'r', 'F', 'e',
+MIT_BEAT_LABELS = ['N', 'L', 'R', 'B', 'A', 'a', 'J', 'S', 'V', 'r', 'F', 'e',
                    'j', 'n', 'E', '/', 'f', 'Q', '?']
+
+DATABASE = 'mit-bih-noise-stress-test-database'
+
+OUTPUT_FOLDER_PATH = 'output/annotations'
+
+OUTPUT_FILE_PATH = 'output/annotations/mit_bih_noise_stress.json'
 
 
 def get_annotations_mit_bih_noise(data_path: str) -> \
@@ -21,17 +26,17 @@ def get_annotations_mit_bih_noise(data_path: str) -> \
     :rtype: tuple(str, dict(str, ndarray))
     """
     records_list = pd.read_csv(
-        f'{data_path}/mit-bih-noise-stress-test-database/RECORDS', names=['id']
+        f'{data_path}/{DATABASE}/RECORDS', names=['id']
         )
     for record_id in records_list['id'][:-3]:
         annotation = wfdb.rdann(
-            f'{data_path}/mit-bih-noise-stress-test-database/{record_id}',
+            f'{data_path}/{DATABASE}/{record_id}',
             'atr'
             )
         annot_serie = pd.Series(annotation.symbol, index=annotation.sample,
                                 name="annotations")
         qrs_annotations = \
-            annot_serie.iloc[:].loc[annot_serie.isin(mit_beat_labels)]
+            annot_serie.iloc[:].loc[annot_serie.isin(MIT_BEAT_LABELS)]
         frames_annotations_list = qrs_annotations.index.tolist()
         yield record_id, frames_annotations_list
 
@@ -45,8 +50,8 @@ def write_annotations_json(dict_annotations: Dict[str, List[int]]) -> None:
      of the dataset
     :type dict_annotations: dict(str, list(int)
     """
-    os.makedirs('output/annotations', exist_ok=True)
-    with open('output/annotations/mit_bih_noise_stress.json', 'w') \
+    os.makedirs(f'{OUTPUT_FOLDER_PATH}', exist_ok=True)
+    with open(f'{OUTPUT_FILE_PATH}', 'w') \
             as outfile:
         json.dump(dict_annotations, outfile)
 

@@ -1,107 +1,112 @@
 import os
 import json
-import pandas as pd
 from datetime import datetime, timedelta
-from typing import List
 
-from psycopg2.extensions import cursor
+import pandas as pd
 import ecg_qc
-from dags.tasks.detect_qrs import sampling_frequency as sf
-from dags.tasks.detect_qrs import read_mit_bih_noise
-from dags.tools.grafana_client import GrafanaClient
-from dags.tasks.write_metrics_to_db import get_connection_to_db
+
+from src.domain.detect_qrs import SAMPLING_FREQUENCY as sf
+from src.domain.detect_qrs import read_mit_bih_noise
+from src.infrastructure.grafana_client import GrafanaClient
+from src.infrastructure.postgres_client import PostgresClient
 
 INITIAL_TIMESTAMP = datetime(2021, 2, 15)
 
-# lib_path = os.path.dirname(ecg_qc.__file__)
+GRAFANA_URL = "http://grafana:3000"
+GRAFANA_API_KEY_ENV_VAR = 'API_KEY_GRAFANA'
+
+DASHBOARD_NAME = "ECG QC performances"
+PANEL_NAME = "ECG + Detected QRS (Hamilton)"
+
+ANNOTATION_FILE_PREFIX = "output/annotations/mit_bih_noise_stress"
+FRAME_FILE_PREFIX = "output/frames/hamilton_mit_bih_noise_stress"
+
+POSTGRES_DATABASE = "postgres"
+
+ENTRY_NAME_TYPE_DICT = {
+    "model_ecg_qc": "varchar",
+    "snr": "integer",
+    "patient": "varchar",
+    "chan": "varchar",
+    "nb_chunks": "integer",
+    "nb_noisy_chunks": "integer",
+    "noisy_pourcent": "real"
+}
 
 
-def create_noisy_info_table(cursor: cursor):
-    # Check if the table already exists
-    cursor.execute("SELECT COUNT(*) FROM information_schema.tables WHERE \
-                   table_name='noisy_info';")
-    if not cursor.fetchone()[0]:
-        print("Table noisy_info does not exist. Creating one...")
-        cursor.execute("CREATE TABLE noisy_info \
-            (model_ecg_qc varchar, \
-            snr integer, \
-            patient varchar, \
-            chan varchar, \
-            nb_chunks integer, \
-            nb_noisy_chunks integer, \
-            noisy_pourcent real \
-            );")
-        print("Table noisy_info has been created")
-
-
-def filter_list(liste: List, df: pd.DataFrame) -> List:
-    new_list = []
-    for elt in liste:
-        # Convert frame into timestamp
-        timestamp = INITIAL_TIMESTAMP + timedelta(milliseconds=elt/sf*1000)
-        timestamp = int(timestamp.timestamp()*1000)
-        if len(df[(timestamp >= df['start']) & (df['end'] >= timestamp)]) == 0:
-            new_list.append(elt)
-    return new_list
+def not_in_noisy_segment(frame: int, noisy_segments: pd.DataFrame) -> bool:
+    timestamp = INITIAL_TIMESTAMP + timedelta(milliseconds=frame/sf*1000)
+    timestamp = int(timestamp.timestamp()*1000)
+    frame_not_in_noisy_segment = \
+        len(noisy_segments[(timestamp >= noisy_segments['start']) &
+            (noisy_segments['end'] >= timestamp)]) == 0
+    return frame_not_in_noisy_segment
 
 
 def update_noise_free_files(SNR: str, model: str, patient: str,
                             noise: pd.DataFrame) -> None:
-    with open("output/annotations/mit_bih_noise_stress.json") as ann_file:
+    with open(f"{ANNOTATION_FILE_PREFIX}.json") as ann_file:
         ann_dict = json.load(ann_file)
     ann_file.close()
     ann_list = ann_dict[patient]
 
-    with open(f"output/frames/hamilton_mit_bih_noise_stress_{SNR}.json") as \
+    with open(f"{FRAME_FILE_PREFIX}_{SNR}.json") as \
             frames_file:
         frames_dict = json.load(frames_file)
     frames_file.close()
     frames_list = frames_dict[patient]['MLII']
 
-    ann_list = filter_list(ann_list, noise)
-    frames_list = filter_list(frames_list, noise)
+    ann_list = [ann for ann in ann_list if not_in_noisy_segment(ann, noise)]
+    frames_list = [f for f in frames_list if not_in_noisy_segment(f, noise)]
 
     try:
-        with open(f"output/annotations/mit_bih_noise_stress_{model}.json",
+        with open(f"{ANNOTATION_FILE_PREFIX}_{model}.json",
                   'r+') as ann_outfile:
             ann_out_dict = json.load(ann_outfile)
             ann_out_dict[patient] = ann_list
             ann_outfile.seek(0)
             json.dump(ann_out_dict, ann_outfile)
     except FileNotFoundError:
-        with open(f"output/annotations/mit_bih_noise_stress_{model}.json",
+        with open(f"{ANNOTATION_FILE_PREFIX}_{model}.json",
                   'w') as ann_outfile:
             json.dump({patient: ann_list}, ann_outfile)
     ann_outfile.close()
 
     try:
-        with open(("output/frames/hamilton_mit_bih_noise_stress"
-                   f"_{SNR}_{model}.json"), 'r+') as f_outfile:
+        with open((f"{FRAME_FILE_PREFIX}_{SNR}_{model}.json"), 'r+') \
+                as f_outfile:
             f_out_dict = json.load(f_outfile)
             f_out_dict[patient] = {'MLII': frames_list}
             f_outfile.seek(0)
             json.dump(f_out_dict, f_outfile)
     except FileNotFoundError:
-        with open(("output/frames/hamilton_mit_bih_noise_stress"
-                   f"_{SNR}_{model}.json"), 'w') as f_outfile:
+        with open((f"{FRAME_FILE_PREFIX}_{SNR}_{model}.json"), 'w') \
+                as f_outfile:
             json.dump({patient: {'MLII': frames_list}}, f_outfile)
     f_outfile.close()
 
 
-def apply_ecg_qc(SNR: str, model: str, data_path: str) -> None:
-    # model_path = f"{lib_path}/ml/models/{model}.joblib"
-    if model == 'model':
-        model_path = 'models/model.pkl'
+def apply_ecg_qc(SNR: str, model: str, data_path: str,
+                 table_name: str = "noisy_info") -> None:
+    # TODO : faire otchoz
+    if model != 'rfc' and model != 'xgb':
+        model_path = f'models/{model}.pkl'
     else:
         model_path = f"models/{model}.joblib"
+
     data_generator = read_mit_bih_noise(SNR, data_path)
     algo = ecg_qc.ecg_qc(sampling_frequency=sf, model=model_path)
     length_chunk = 9  # seconds TODO parse model
-    key = json.loads(os.getenv('API_KEY_GRAFANA'))['key']
-    client = GrafanaClient("http://grafana:3000", key)
-    conn = get_connection_to_db()
-    cursor = conn.cursor()
-    create_noisy_info_table(cursor=cursor)
+    # length_chunk = int(model.split('_')[-1][:-1])
+
+    key = json.loads(os.getenv(GRAFANA_API_KEY_ENV_VAR))['key']
+    grafana_client = GrafanaClient(GRAFANA_URL, key)
+    postgres_client = PostgresClient()
+    table_exists = postgres_client.check_if_table_exists(POSTGRES_DATABASE,
+                                                         table_name)
+    if not table_exists:
+        postgres_client.create_table(POSTGRES_DATABASE, table_name,
+                                     ENTRY_NAME_TYPE_DICT)
 
     try:
         snr_int = int(SNR[-2:])
@@ -148,23 +153,21 @@ def apply_ecg_qc(SNR: str, model: str, data_path: str) -> None:
                                          columns=["start", "end", "text",
                                                   "tags"]),
                             ignore_index=True)
-                client.annotate_from_dataframe("ECG QC performances",
-                                               "ECG + Detected QRS (Hamilton)",
-                                               df)
+                grafana_client.annotate_from_dataframe(DASHBOARD_NAME,
+                                                       PANEL_NAME,
+                                                       df)
 
                 nb_noisy_chunks = df.shape[0]
                 noisy_pourcent = round(nb_noisy_chunks/nb_chunks*100, 2)
 
                 # Store info in Postgresql
-                cursor.execute(f"INSERT INTO noisy_info VALUES \
-                               ('{model}', \
-                               {snr_int}, \
-                               '{pat}', \
-                               '{channel}', \
-                               {nb_chunks}, \
-                               {nb_noisy_chunks}, \
-                               {noisy_pourcent} \
-                               );")
+                values_to_insert = [f"'{model}'", str(snr_int), f"'{pat}'",
+                                    f"'{channel}'", str(nb_chunks),
+                                    str(nb_noisy_chunks), str(noisy_pourcent)]
+                dict_to_insert = dict(zip(ENTRY_NAME_TYPE_DICT.keys(),
+                                          values_to_insert))
+                postgres_client.write_in_table(POSTGRES_DATABASE, table_name,
+                                               dict_to_insert)
 
                 # Create / update new log files (MLII only)
                 if channel == 'MLII':
@@ -175,17 +178,13 @@ def apply_ecg_qc(SNR: str, model: str, data_path: str) -> None:
             # Add the global noisy pourcent in the table
             noisy_pourcent_global = \
                 sum(noisy_pourcent_mlii)/len(noisy_pourcent_mlii)
-            cursor.execute(f"INSERT INTO noisy_info VALUES \
-                           ('{model}', \
-                           {snr_int}, \
-                           'global', \
-                           'MLII', \
-                           NULL, \
-                           NULL, \
-                           {noisy_pourcent_global} \
-                           );")
-            cursor.close()
-            conn.close()
+            values_to_insert = [f"'{model}'", str(snr_int), "'global'",
+                                "'MLII'", "NULL", "NULL",
+                                str(noisy_pourcent_global)]
+            dict_to_insert = dict(zip(ENTRY_NAME_TYPE_DICT.keys(),
+                                      values_to_insert))
+            postgres_client.write_in_table(POSTGRES_DATABASE, table_name,
+                                           dict_to_insert)
             break
 
     # 1 -> good quality / 0 -> bad quality

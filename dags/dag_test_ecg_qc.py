@@ -1,16 +1,21 @@
 from datetime import datetime
+
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 
-from tasks.extract_data import extract_data
-from tasks.detect_qrs import detect_qrs
-from tasks.compute_metrics import compute_metrics
-from tasks.write_metrics_to_db import write_metrics_to_db
-from tasks.write_qrs_to_db import write_qrs_to_db
-from tasks.write_ecg_to_db import write_ecg_to_db
-from tasks.write_annot_to_db import write_annot_to_db
-from tasks.apply_ecg_qc import apply_ecg_qc
-from tasks.delete_model import delete_model
+from src.usecase.extract_data import extract_data
+from src.domain.detect_qrs import detect_qrs
+from src.domain.compute_metrics import compute_metrics
+from src.domain.apply_ecg_qc import apply_ecg_qc
+from src.infrastructure.write_metrics_to_db import write_metrics_to_db
+from src.infrastructure.write_qrs_to_db import write_qrs_to_db
+from src.infrastructure.write_ecg_to_db import write_ecg_to_db
+from src.infrastructure.write_annot_to_db import write_annot_to_db
+from src.infrastructure.delete_model import delete_model
+
+START_DATE = datetime(2021, 4, 22)
+CONCURRENCY = 12
+SCHEDULE_INTERVAL = None
 
 # Parameters
 model_ECG_QC = ['rfc', 'xgb', 'model']
@@ -18,15 +23,14 @@ model_to_delete = []
 data_path = 'data'
 tolerance = 50
 SNRs = ['e_6', 'e00', 'e06', 'e12', 'e18', 'e24']
-date_run = str(datetime.now())
 
 
 with DAG(
     'init',
     description='Initialize databases and compute metrics without model',
-    start_date=datetime(2021, 4, 22),
-    schedule_interval=None,
-    concurrency=12
+    start_date=START_DATE,
+    schedule_interval=SCHEDULE_INTERVAL,
+    concurrency=CONCURRENCY
 ) as dag_init:
 
     t_extract_data = PythonOperator(
@@ -69,8 +73,7 @@ with DAG(
             op_kwargs={
                 'model_ECG_QC': 'None',
                 'SNR': SNR,
-                'tol': tolerance,
-                'date_run': date_run
+                'tol': tolerance
             }
         )
 
@@ -100,9 +103,9 @@ with DAG(
 with DAG(
     'test_models_ecg_qc',
     description='Test ECG QC models',
-    start_date=datetime(2021, 4, 22),
-    schedule_interval=None,
-    concurrency=12
+    start_date=START_DATE,
+    schedule_interval=SCHEDULE_INTERVAL,
+    concurrency=CONCURRENCY
 ) as dag_test:
 
     for model in model_ECG_QC:
@@ -136,7 +139,6 @@ with DAG(
                     'model_ECG_QC': model,
                     'SNR': SNR,
                     'tol': tolerance,
-                    'date_run': date_run
                 }
             )
 
@@ -147,9 +149,9 @@ with DAG(
 with DAG(
     'delete_models',
     description='Delete ECG QC models from databases',
-    start_date=datetime(2021, 4, 22),
-    schedule_interval=None,
-    concurrency=12
+    start_date=START_DATE,
+    schedule_interval=SCHEDULE_INTERVAL,
+    concurrency=CONCURRENCY
 ) as dag_delete:
 
     for model in model_to_delete:

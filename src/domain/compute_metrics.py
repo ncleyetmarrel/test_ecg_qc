@@ -1,11 +1,11 @@
 import os
 import json
+from typing import List, Tuple, Dict, Generator
 
 import numpy as np
 import pandas as pd
 
-from typing import List, Tuple, Dict, Generator
-from dags.tasks.detect_qrs import sampling_frequency, records
+from src.domain.detect_qrs import SAMPLING_FREQUENCY, RECORDS
 
 
 def compute_confusion_matrix_and_delays(frames_detections: List[int],
@@ -284,12 +284,12 @@ def compute_metrics(snr: str, tol: int, model: str = 'None') -> None:
         dataset_ann = dataset_ann + '_' + model
         dataset = dataset + '_' + model
     algorithm = 'hamilton'
-    fs = sampling_frequency
+    fs = SAMPLING_FREQUENCY
     tol_sup1 = 25
     tol_sup2 = 50
     tolerances_fr = [int((tol * fs) / 1000), int((tol_sup1 * fs) / 1000),
                      int((tol_sup2 * fs) / 1000)]
-    records_dict = records[dataset_rec]
+    records_dict = RECORDS[dataset_rec]
     nb_of_records = len(records_dict.keys())
 
     with open(f'output/frames/{algorithm}_{dataset}.json') as detections_json:

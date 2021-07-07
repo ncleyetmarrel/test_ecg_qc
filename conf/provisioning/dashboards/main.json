@@ -5,7 +5,7 @@
         "datasource": "aura-influxDB",
         "enable": true,
         "hide": false,
-        "iconColor": "rgba(255, 96, 96, 1)",
+        "iconColor": "#1F60C4",
         "limit": 100,
         "name": "Detected QRS",
         "query": "SELECT amplitude FROM \"qrs\".\"autogen\".\"DetectedQRS\" where snr='$snr' and channel='$channel' and patient='$patecg' and $timeFilter",
@@ -19,7 +19,7 @@
         "datasource": "aura-influxDB",
         "enable": true,
         "hide": false,
-        "iconColor": "#3274D9",
+        "iconColor": "#96D98D",
         "limit": 100,
         "name": "True QRS",
         "query": "SELECT amplitude FROM \"qrs\".\"autogen\".\"TrueQRS\" where snr='$snr' and patient='$patecg' and $timeFilter",
@@ -34,7 +34,7 @@
         "datasource": "-- Grafana --",
         "enable": true,
         "hide": false,
-        "iconColor": "rgba(0, 211, 255, 1)",
+        "iconColor": "#FF7383",
         "limit": 100,
         "matchAny": false,
         "name": "Noisy segments",
@@ -53,7 +53,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 1,
-  "iteration": 1624961480236,
+  "iteration": 1625662858260,
   "links": [],
   "panels": [
     {
@@ -98,8 +98,8 @@
           "xaxis": {
             "autorange": true,
             "range": [
-              -7.875941737820192,
-              25.87594173782019
+              -7.877210712481051,
+              25.87721071248105
             ],
             "title": {
               "text": "SNR (dB)"
@@ -110,8 +110,8 @@
           "yaxis": {
             "autorange": true,
             "range": [
-              50.62312364425163,
-              103.89687635574838
+              -8.568329718004337,
+              108.56832971800434
             ],
             "title": {
               "text": "Positive predictivity (%)"
@@ -200,8 +200,8 @@
           "xaxis": {
             "autorange": true,
             "range": [
-              -7.875941737820192,
-              25.87594173782019
+              -7.877210712481051,
+              25.87721071248105
             ],
             "title": {
               "text": "SNR (dB)"
@@ -212,8 +212,8 @@
           "yaxis": {
             "autorange": true,
             "range": [
-              47.311790673535796,
-              104.1582103264642
+              -8.568329718004337,
+              108.56832971800434
             ],
             "title": {
               "text": "Sensitivity (%)"
@@ -302,8 +302,8 @@
           "xaxis": {
             "autorange": true,
             "range": [
-              -7.875941737820192,
-              25.87594173782019
+              -7.877210712481051,
+              25.87721071248105
             ],
             "title": {
               "text": "SNR (dB)"
@@ -314,8 +314,8 @@
           "yaxis": {
             "autorange": true,
             "range": [
-              48.918601953362256,
-              104.03139904663774
+              -8.568329718004337,
+              108.56832971800434
             ],
             "title": {
               "text": "F1-score (%)"
@@ -404,8 +404,8 @@
           "xaxis": {
             "autorange": true,
             "range": [
-              -7.875941737820192,
-              25.87594173782019
+              -7.877210712481051,
+              25.87721071248105
             ],
             "title": {
               "text": "SNR (dB)"
@@ -507,8 +507,8 @@
           "xaxis": {
             "autorange": true,
             "range": [
-              -7.873141724479683,
-              25.873141724479684
+              -7.877210712481051,
+              25.87721071248105
             ],
             "title": {
               "text": "SNR (dB)"
@@ -519,8 +519,8 @@
           "yaxis": {
             "autorange": true,
             "range": [
-              30.354763731019524,
-              91.53523626898047
+              29.246021694143167,
+              105.58398030585683
             ],
             "title": {
               "text": "Noisy chunks (%)"
@@ -898,6 +898,7 @@
         "allValue": null,
         "current": {
           "selected": true,
+          "tags": [],
           "text": [
             "All"
           ],
@@ -1009,7 +1010,7 @@
       {
         "allValue": null,
         "current": {
-          "selected": false,
+          "selected": true,
           "text": "None",
           "value": "None"
         },

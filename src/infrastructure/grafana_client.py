@@ -1,9 +1,7 @@
 import os
 import urllib.parse
 import json
-# import datetime
 from typing import List, Tuple, Optional
-# import time
 
 import pandas as pd
 import requests
@@ -48,11 +46,6 @@ class GrafanaClient:
                           time_from: int, time_to: int,
                           title: str, tags_list: List[str]) -> None:
         """Create annotation on Grafana with specified parameters."""
-        # TODO: replace as it might break if we change date format
-        # time_from = datetime.datetime.strptime(time_from,'%Y-%m-%d %H:%M:%S')
-        # start_time = int(time_from.strftime("%s")) * 1000
-        # time_to = datetime.datetime.strptime(time_to, '%Y-%m-%d %H:%M:%S')
-        # end_time = int(time_to.strftime("%s")) * 1000
 
         url = os.path.join(self.__grafana_url, "api/annotations")
         payload = {
@@ -109,25 +102,3 @@ class GrafanaClient:
             url = os.path.join(self.__grafana_url, f"api/annotations/{ann_id}")
             requests.delete(url, headers=self.__header, data={},
                             verify=self.verify)
-
-    # def patch_annotation(self, annotation_id: int,
-    #                      updated_timestamp: Optional[str] = None,
-    #                      new_tags_list: Optional[list] = None) -> \
-    #         requests.models.Response:
-    #     """Update grafana annotation with data given in
-    #     updated_timestamp & new_tags_list."""
-    #     url = os.path.join(self.__grafana_url,
-    #                        f"api/annotations/{annotation_id}")
-    #     patch_data = {}
-    #     if updated_timestamp:
-    #         # TODO: replace as it might break if we change date format
-    #         unix_timestamp_ms = int(time.mktime(datetime.datetime.strptime(
-    #             updated_timestamp, "%Y-%m-%d %H:%M:%S").timetuple())) * 1000
-    #         patch_data["timeEnd"] = unix_timestamp_ms
-    #     if new_tags_list:
-    #         patch_data["tags"] = new_tags_list
-    #     patch_data = json.dumps(patch_data)
-    #     response = requests.patch(url, headers=self.__header,data=patch_data,
-    #                               verify=self.verify)
-
-    #     return response

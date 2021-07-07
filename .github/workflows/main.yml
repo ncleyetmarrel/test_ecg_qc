@@ -11,7 +11,7 @@ on:
 jobs:
 
   lint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
       - name: Install dependencies
@@ -22,7 +22,7 @@ jobs:
         run: flake8 dags/ test/
 
   sast:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
       - name: SAST 
@@ -31,7 +31,7 @@ jobs:
           config: 'p/ci'
  
   unittests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
       - name: Install dependencies
@@ -44,7 +44,7 @@ jobs:
 
   build:
     needs: [lint, sast, unittests]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
       - name : print congrats 

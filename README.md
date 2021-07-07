@@ -20,11 +20,3 @@ After cloning this repository, you can run these commands :
 
 ### UI
 You can interact with **Airflow** [here](http://localhost:8080), and with **Grafana** [here](http://localhost:3000). Usernames and passwords are *admin* for both.
-
-## Troubleshoot
-If you face some permission problems, run :
-```
-    $ sudo chmod -R 777 output/ data/ logs/ scripts/
-``` 
-
-Make sure to empty tables (volumes) and output sub-folders before running the main dag again.

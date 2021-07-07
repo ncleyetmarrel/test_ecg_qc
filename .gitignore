@@ -133,3 +133,6 @@ dmypy.json
 
 # data 
 notebooks/output/
+
+# datasource
+conf/provisioning/datasources/datasources.yml
