@@ -5,8 +5,8 @@ from datetime import datetime, timedelta
 import pandas as pd
 import ecg_qc
 
-from src.domain.detect_qrs import SAMPLING_FREQUENCY as sf
-from src.domain.detect_qrs import read_mit_bih_noise
+from src.domain.data_reader import SAMPLING_FREQUENCY as sf
+from src.domain.data_reader import read_mit_bih_noise
 from src.infrastructure.grafana_client import GrafanaClient
 from src.infrastructure.postgres_client import PostgresClient
 
@@ -96,6 +96,7 @@ def apply_ecg_qc(SNR: str, model: str, data_path: str,
 
     data_generator = read_mit_bih_noise(SNR, data_path)
     algo = ecg_qc.ecg_qc(sampling_frequency=sf, model=model_path)
+    # PARAMETRE NORMALIZED A PARSE
     length_chunk = 9  # seconds TODO parse model
     # length_chunk = int(model.split('_')[-1][:-1])
 

@@ -12,11 +12,12 @@ You need to have [docker](https://docs.docker.com/get-docker/) and [docker-compo
 After cloning this repository, you can run these commands :
 
 ```sh
-    $ source env.sh
-    $ rm -rf conf/provisioning/datasources/datasources.yml
-    $ envsubst < "conf/template.yml" > "conf/provisioning/datasources/datasources.yml" 
+    $ source setup_env.sh
     $ docker-compose up -d
 ```
 
 ### UI
 You can interact with **Airflow** [here](http://localhost:8080), and with **Grafana** [here](http://localhost:3000). Usernames and passwords are *admin* for both.
+
+### Troubleshoot
+If docker-compose returns an error due to port already in use, change the value of environment variables in the env.sh file.

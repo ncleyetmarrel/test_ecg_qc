@@ -33,6 +33,7 @@ services:
     deploy:
       restart_policy:
         condition: on-failure
+    # restart : on-failure
     ports:
       - '${GRAFANA_PORT}:3000'
     volumes:
@@ -64,6 +65,7 @@ services:
     deploy:
       restart_policy:
         condition: on-failure
+    # restart : on-failure
     depends_on:
       - postgres
       - grafana

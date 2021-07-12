@@ -4,21 +4,21 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 
 from src.usecase.extract_data import extract_data
-from src.domain.detect_qrs import detect_qrs
-from src.domain.compute_metrics import compute_metrics
-from src.domain.apply_ecg_qc import apply_ecg_qc
-from src.infrastructure.write_metrics_to_db import write_metrics_to_db
-from src.infrastructure.write_qrs_to_db import write_qrs_to_db
-from src.infrastructure.write_ecg_to_db import write_ecg_to_db
-from src.infrastructure.write_annot_to_db import write_annot_to_db
-from src.infrastructure.delete_model import delete_model
+from src.usecase.detect_qrs import detect_qrs
+from src.usecase.compute_metrics import compute_metrics
+from src.usecase.apply_ecg_qc import apply_ecg_qc
+from src.usecase.write_metrics_to_db import write_metrics_to_db
+from src.usecase.write_qrs_to_db import write_qrs_to_db
+from src.usecase.write_ecg_to_db import write_ecg_to_db
+from src.usecase.write_annot_to_db import write_annot_to_db
+from src.usecase.delete_model import delete_model
 
 START_DATE = datetime(2021, 4, 22)
 CONCURRENCY = 12
 SCHEDULE_INTERVAL = None
 
 # Parameters
-model_ECG_QC = ['rfc', 'xgb', 'model']
+model_ECG_QC = ['xgb', 'rfc', 'model']
 model_to_delete = []
 data_path = 'data'
 tolerance = 50
@@ -119,7 +119,8 @@ with DAG(
                     'SNR': SNR,
                     'model': model,
                     'data_path': data_path
-                }
+                },
+                retries=1
             )
 
             t_compute_new_metrics = PythonOperator(

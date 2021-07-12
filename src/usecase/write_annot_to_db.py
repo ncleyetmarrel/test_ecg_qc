@@ -3,7 +3,9 @@ from datetime import datetime, timedelta
 
 from influxdb import InfluxDBClient
 
-from src.domain.detect_qrs import SAMPLING_FREQUENCY as sf
+from src.domain.data_reader import SAMPLING_FREQUENCY as sf
+from src.infrastructure.influxdb_client import connect_client_to_db
+
 
 DEFAULT_AMPLITUDE_VALUE = 1
 INITIAL_TIMESTAMP = datetime(2021, 2, 15)
@@ -15,14 +17,6 @@ INFLUXDB_DBNAME = "qrs"
 INFLUXDB_PORT = 8086
 
 ANNOTATION_FILE = 'output/annotations/mit_bih_noise_stress.json'
-
-
-def connect_client_to_db(client: InfluxDBClient, dbname: str) -> None:
-    dbs = client.get_list_database()
-    if dbname not in [d['name'] for d in dbs if 'name' in d]:
-        print(f"Creating database {dbname}.")
-        client.create_database(dbname)
-    client.switch_database(dbname)
 
 
 def write_annot_to_db() -> None:

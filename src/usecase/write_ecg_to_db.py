@@ -2,8 +2,9 @@ from datetime import datetime, timedelta
 
 from influxdb import InfluxDBClient
 
-from src.domain.detect_qrs import SAMPLING_FREQUENCY as sf
-from src.domain.detect_qrs import read_mit_bih_noise
+from src.domain.data_reader import SAMPLING_FREQUENCY as sf
+from src.domain.data_reader import read_mit_bih_noise
+from src.infrastructure.influxdb_client import connect_client_to_db
 
 INITIAL_TIMESTAMP = datetime(2021, 2, 15)
 BATCH_SIZE = 10000
@@ -13,14 +14,6 @@ INFLUXDB_USERNAME = "admin"
 INFLUXDB_PASSWORD = "auraadmin"
 INFLUXDB_DBNAME = "qrs"
 INFLUXDB_PORT = 8086
-
-
-def connect_client_to_db(client: InfluxDBClient, dbname: str) -> None:
-    dbs = client.get_list_database()
-    if dbname not in [d['name'] for d in dbs if 'name' in d]:
-        print(f"Creating database {dbname}.")
-        client.create_database(dbname)
-    client.switch_database(dbname)
 
 
 def write_ecg_to_db(SNR: str,  data_path: str = 'data') -> None:

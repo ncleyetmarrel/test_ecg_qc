@@ -5,10 +5,8 @@ from typing import List, Generator, Tuple, Dict
 import wfdb
 import pandas as pd
 
+from src.domain.data_reader import MIT_BEAT_LABELS
 
-# annotations corresponding to beats so related to QRS complexes' localisations
-MIT_BEAT_LABELS = ['N', 'L', 'R', 'B', 'A', 'a', 'J', 'S', 'V', 'r', 'F', 'e',
-                   'j', 'n', 'E', '/', 'f', 'Q', '?']
 
 DATABASE = 'mit-bih-noise-stress-test-database'
 
