@@ -1,4 +1,4 @@
-from src.domain.compute_metrics import get_scores
+from src.domain.metrics_computer import get_scores
 
 
 def test_get_score():
