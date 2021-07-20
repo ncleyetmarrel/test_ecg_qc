@@ -30,10 +30,10 @@ services:
   grafana:
     image: grafana/grafana:7.3.4
     container_name: aura-grafana
-    deploy:
-      restart_policy:
-        condition: on-failure
-    # restart : on-failure
+    # deploy:
+    #   restart_policy:
+    #     condition: on-failure
+    restart : on-failure
     ports:
       - '${GRAFANA_PORT}:3000'
     volumes:
@@ -62,10 +62,10 @@ services:
         GID: ${AIRFLOW_GID}
     container_name: aura-airflow
     entrypoint: ./scripts/entrypoint.sh
-    deploy:
-      restart_policy:
-        condition: on-failure
-    # restart : on-failure
+    # deploy:
+    #   restart_policy:
+    #     condition: on-failure
+    restart : on-failure
     depends_on:
       - postgres
       - grafana
