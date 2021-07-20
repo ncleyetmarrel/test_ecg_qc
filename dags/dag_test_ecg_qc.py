@@ -1,4 +1,6 @@
 from datetime import datetime
+from os import listdir
+from os.path import isfile, join
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
@@ -12,18 +14,30 @@ from src.usecase.write_qrs_to_db import write_qrs_to_db
 from src.usecase.write_ecg_to_db import write_ecg_to_db
 from src.usecase.write_annot_to_db import write_annot_to_db
 from src.usecase.delete_model import delete_model
+from src.infrastructure.postgres_client import PostgresClient
+
+POSTGRES_DB = 'postgres'
+METRICS_TABLE = 'metrics'
+MODEL_COLUMN_NAME = 'model_ecg_qc'
+SNR_COLUMN_NAME = 'snr'
 
 START_DATE = datetime(2021, 4, 22)
 CONCURRENCY = 12
 SCHEDULE_INTERVAL = None
 
-# Parameters
-model_ECG_QC = ['xgb', 'rfc', 'model']
-model_to_delete = []
-data_path = 'data'
-tolerance = 50
+DATA_PATH = 'data'
+TOLERANCE = 50
 SNRs = ['e_6', 'e00', 'e06', 'e12', 'e18', 'e24']
+MODEL_FOLDER = 'models'
+DELETE_FOLDER = 'to_delete'
 
+
+model_ECG_QC = [f for f in listdir(MODEL_FOLDER)
+                if isfile(join(MODEL_FOLDER, f))]
+model_to_delete = [f.split('.')[0]
+                   for f in listdir(join(MODEL_FOLDER, DELETE_FOLDER))]
+
+postgres_client = PostgresClient()
 
 with DAG(
     'init',
@@ -37,7 +51,7 @@ with DAG(
                 task_id='extract_data',
                 python_callable=extract_data,
                 op_kwargs={
-                    'data_path': data_path
+                    'data_path': DATA_PATH
                 }
             )
 
@@ -53,7 +67,7 @@ with DAG(
             python_callable=detect_qrs,
             op_kwargs={
                 'snr': SNR,
-                'data_path': data_path
+                'data_path': DATA_PATH
             }
         )
 
@@ -62,7 +76,7 @@ with DAG(
             python_callable=compute_metrics,
             op_kwargs={
                 'snr': SNR,
-                'tol': tolerance,
+                'tol': TOLERANCE,
                 'model': 'None'
             }
         )
@@ -73,7 +87,7 @@ with DAG(
             op_kwargs={
                 'model_ECG_QC': 'None',
                 'SNR': SNR,
-                'tol': tolerance
+                'tol': TOLERANCE
             }
         )
 
@@ -90,7 +104,7 @@ with DAG(
             python_callable=write_ecg_to_db,
             op_kwargs={
                 'SNR': SNR,
-                'data_path': data_path
+                'data_path': DATA_PATH
             }
         )
 
@@ -110,41 +124,58 @@ with DAG(
 
     for model in model_ECG_QC:
 
+        model_name = model.split('.')[0]
+
         for SNR in SNRs:
 
-            t_apply_ecg_qc = PythonOperator(
-                task_id=f'apply_ecg_qc_{SNR}_{model}',
-                python_callable=apply_ecg_qc,
-                op_kwargs={
-                    'SNR': SNR,
-                    'model': model,
-                    'data_path': data_path
-                },
-                retries=1
-            )
+            try:
+                snr_int = int(SNR[-2:])
+            except ValueError:
+                snr_int = -6
 
-            t_compute_new_metrics = PythonOperator(
-                task_id=f'compute_metrics_{SNR}_{model}',
-                python_callable=compute_metrics,
-                op_kwargs={
-                    'snr': SNR,
-                    'tol': tolerance,
-                    'model': model
-                }
-            )
+            values_dict = {
+                MODEL_COLUMN_NAME: f"'{model_name}'",
+                SNR_COLUMN_NAME: str(snr_int)
+            }
 
-            t_write_new_metrics_to_db = PythonOperator(
-                task_id=f'write_metrics_to_db_{SNR}_{model}',
-                python_callable=write_metrics_to_db,
-                op_kwargs={
-                    'model_ECG_QC': model,
-                    'SNR': SNR,
-                    'tol': tolerance,
-                }
-            )
+            if postgres_client.check_if_table_exists(
+                POSTGRES_DB, METRICS_TABLE) and not \
+                postgres_client.check_if_values_in_table(
+                    POSTGRES_DB, METRICS_TABLE, values_dict):
 
-            t_apply_ecg_qc >> t_compute_new_metrics >> \
-                t_write_new_metrics_to_db
+                t_apply_ecg_qc = PythonOperator(
+                    task_id=f'apply_ecg_qc_{SNR}_{model_name}',
+                    python_callable=apply_ecg_qc,
+                    op_kwargs={
+                        'SNR': SNR,
+                        'model': model,
+                        'data_path': DATA_PATH
+                    },
+                    retries=1
+                )
+
+                t_compute_new_metrics = PythonOperator(
+                    task_id=f'compute_metrics_{SNR}_{model_name}',
+                    python_callable=compute_metrics,
+                    op_kwargs={
+                        'snr': SNR,
+                        'tol': TOLERANCE,
+                        'model': model_name
+                    }
+                )
+
+                t_write_new_metrics_to_db = PythonOperator(
+                    task_id=f'write_metrics_to_db_{SNR}_{model_name}',
+                    python_callable=write_metrics_to_db,
+                    op_kwargs={
+                        'model_ECG_QC': model_name,
+                        'SNR': SNR,
+                        'tol': TOLERANCE,
+                    }
+                )
+
+                t_apply_ecg_qc >> t_compute_new_metrics >> \
+                    t_write_new_metrics_to_db
 
 
 with DAG(
@@ -155,11 +186,14 @@ with DAG(
     concurrency=CONCURRENCY
 ) as dag_delete:
 
-    for model in model_to_delete:
-        t_delete_model = PythonOperator(
-            task_id=f'delete_{model}',
-            python_callable=delete_model,
-            op_kwargs={
-                'model': model
-            }
-        )
+    if postgres_client.check_if_table_exists(
+            POSTGRES_DB, METRICS_TABLE):
+
+        for model in model_to_delete:
+            t_delete_model = PythonOperator(
+                task_id=f'delete_{model}',
+                python_callable=delete_model,
+                op_kwargs={
+                    'model': model
+                }
+            )

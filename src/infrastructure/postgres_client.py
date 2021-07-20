@@ -55,7 +55,10 @@ class PostgresClient:
                                 for entry_name, entry_type
                                 in entry_name_type_dict.items()) + \
                       ");"
-        cursor.execute(sql_request)
+        try:
+            cursor.execute(sql_request)
+        except Exception:
+            print(f"Table {table} already exists.")
         cursor.close()
         conn.close()
 
@@ -84,3 +87,19 @@ class PostgresClient:
         cursor.execute(sql_request)
         cursor.close()
         conn.close()
+
+    def check_if_values_in_table(self, database: str, table: str,
+                                 entry_name_value_dict: Dict[str, str]) \
+            -> bool:
+        conn = self.connect_to_database(database)
+        cursor = conn.cursor()
+        sql_request = f"SELECT * FROM {table} WHERE " + \
+                      ' AND '.join(entry_name + "=" + entry_type
+                                   for entry_name, entry_type
+                                   in entry_name_value_dict.items()) + \
+                      ";"
+        cursor.execute(sql_request)
+        resp = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return len(resp) > 0

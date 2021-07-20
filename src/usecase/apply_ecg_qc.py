@@ -21,6 +21,8 @@ PANEL_NAME = "ECG + Detected QRS (Hamilton)"
 ANNOTATION_FILE_PREFIX = "output/annotations/mit_bih_noise_stress"
 FRAME_FILE_PREFIX = "output/frames/hamilton_mit_bih_noise_stress"
 
+MODEL_FOLDER = 'models'
+
 POSTGRES_DATABASE = "postgres"
 
 ENTRY_NAME_TYPE_DICT = {
@@ -88,17 +90,20 @@ def update_noise_free_files(SNR: str, model: str, patient: str,
 
 def apply_ecg_qc(SNR: str, model: str, data_path: str,
                  table_name: str = "noisy_info") -> None:
-    # TODO : faire otchoz
-    if model != 'rfc' and model != 'xgb':
-        model_path = f'models/{model}.pkl'
-    else:
-        model_path = f"models/{model}.joblib"
 
     data_generator = read_mit_bih_noise(SNR, data_path)
-    algo = ecg_qc.ecg_qc(sampling_frequency=sf, model=model_path)
-    # PARAMETRE NORMALIZED A PARSE
-    length_chunk = 9  # seconds TODO parse model
-    # length_chunk = int(model.split('_')[-1][:-1])
+    model_path = os.path.join(MODEL_FOLDER, model)
+    model_name = model.split('.')[0]
+
+    model_split = model_name.split('_')
+    try:
+        length_chunk = int(model_split[-1][:-1])
+    except ValueError:
+        length_chunk = 9
+
+    # is_normalized = 'normalized' in model_split
+    algo = ecg_qc.ecg_qc(sampling_frequency=sf, model=model_path)  # ,
+    # normalized=is_normalized)
 
     key = json.loads(os.getenv(GRAFANA_API_KEY_ENV_VAR))['key']
     grafana_client = GrafanaClient(GRAFANA_URL, key)
@@ -149,8 +154,8 @@ def apply_ecg_qc(SNR: str, model: str, data_path: str,
                         df = df.append(
                             pd.DataFrame([[time_start, time_end,
                                           "Noisy segment",
-                                           [str(snr_int), pat, channel, model]
-                                           ]],
+                                           [str(snr_int), pat, channel,
+                                            model_name]]],
                                          columns=["start", "end", "text",
                                                   "tags"]),
                             ignore_index=True)
@@ -162,8 +167,8 @@ def apply_ecg_qc(SNR: str, model: str, data_path: str,
                 noisy_pourcent = round(nb_noisy_chunks/nb_chunks*100, 2)
 
                 # Store info in Postgresql
-                values_to_insert = [f"'{model}'", str(snr_int), f"'{pat}'",
-                                    f"'{channel}'", str(nb_chunks),
+                values_to_insert = [f"'{model_name}'", str(snr_int),
+                                    f"'{pat}'", f"'{channel}'", str(nb_chunks),
                                     str(nb_noisy_chunks), str(noisy_pourcent)]
                 dict_to_insert = dict(zip(ENTRY_NAME_TYPE_DICT.keys(),
                                           values_to_insert))
@@ -172,14 +177,14 @@ def apply_ecg_qc(SNR: str, model: str, data_path: str,
 
                 # Create / update new log files (MLII only)
                 if channel == 'MLII':
-                    update_noise_free_files(SNR, model, patient, df)
+                    update_noise_free_files(SNR, model_name, patient, df)
                     noisy_pourcent_mlii.append(noisy_pourcent)
 
         except StopIteration:
             # Add the global noisy pourcent in the table
             noisy_pourcent_global = \
                 sum(noisy_pourcent_mlii)/len(noisy_pourcent_mlii)
-            values_to_insert = [f"'{model}'", str(snr_int), "'global'",
+            values_to_insert = [f"'{model_name}'", str(snr_int), "'global'",
                                 "'MLII'", "NULL", "NULL",
                                 str(noisy_pourcent_global)]
             dict_to_insert = dict(zip(ENTRY_NAME_TYPE_DICT.keys(),
