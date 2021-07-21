@@ -25,7 +25,7 @@ services:
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_MULTIPLE_DATABASES: ${POSTGRES_DATABASE_AIRFLOW},${POSTGRES_DATABASE_GRAFANA}
+      POSTGRES_MULTIPLE_DATABASES: ${POSTGRES_DATABASE_AIRFLOW},${POSTGRES_DATABASE_GRAFANA}, ${POSTGRES_DATABASE_MLFLOW}
 
   grafana:
     image: grafana/grafana:7.3.4
@@ -55,8 +55,8 @@ services:
   
   airflow:
     build:
-      context: .
-      dockerfile: DockerfileCustomAirflow
+      context: ./docker/airflow
+      dockerfile: Dockerfile
       args:
         UID: ${AIRFLOW_UID}
         GID: ${AIRFLOW_GID}
@@ -84,6 +84,20 @@ services:
       - ./requirements.txt:/opt/airflow/requirements.txt
     ports:
       - '${AIRFLOW_PORT}:8080'
+
+  mlflow:
+    build: 
+      context: ./docker/mlflow
+      dockerfile: Dockerfile
+    container_name: aura-mlflow
+    depends_on: 
+      - postgres
+    restart: on-failure
+    command: mlflow server --host 0.0.0.0 --backend-store-uri postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DATABASE_MLFLOW} --default-artifact-root ./mlruns
+    ports: 
+        - '${MLFLOW_PORT}:5000'
+    volumes: 
+      - ./mlruns:/mlruns
 
 
 volumes:

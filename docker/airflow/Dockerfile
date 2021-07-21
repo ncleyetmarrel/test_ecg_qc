@@ -72,7 +72,7 @@ RUN set -ex \
 
 
 RUN chown -R airflow: ${AIRFLOW_USER_HOME}
-COPY requirements.txt requirements.txt
+# COPY requirements.txt requirements.txt
 USER airflow
-RUN pip install --user -r requirements.txt
+# RUN pip install --user -r requirements.txt
 WORKDIR ${AIRFLOW_USER_HOME}
