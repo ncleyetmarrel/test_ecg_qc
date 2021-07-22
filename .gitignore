@@ -132,11 +132,7 @@ dmypy.json
 .vscode/
 
 # data 
-data/
 notebooks/output/
-output/
 
-# Airflow 
-airflow.db
-logs/
-airflow-webserver.pid
+# datasource
+conf/provisioning/datasources/datasources.yml
