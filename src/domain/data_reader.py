@@ -64,7 +64,8 @@ def read_mit_bih_noise(snr: str, data_path: str) -> \
     """
     rec_list = pd.read_csv(
         f'{data_path}/mit-bih-noise-stress-test-database/RECORDS',
-        names=['id']
+        names=['id'],
+        dtype=str
         )
     records_list = [record_id for record_id in rec_list['id']
                     if record_id.find(snr) != -1]
