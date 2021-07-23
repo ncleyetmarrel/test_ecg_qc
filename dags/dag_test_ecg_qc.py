@@ -151,7 +151,6 @@ with DAG(
                         'model': model,
                         'data_path': DATA_PATH
                     },
-                    retries=1
                 )
 
                 t_compute_new_metrics = PythonOperator(

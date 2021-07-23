@@ -101,9 +101,9 @@ def apply_ecg_qc(SNR: str, model: str, data_path: str,
     except ValueError:
         length_chunk = 9
 
-    # is_normalized = 'normalized' in model_split
-    algo = ecg_qc.ecg_qc(sampling_frequency=sf, model=model_path)  # ,
-    # normalized=is_normalized)
+    is_normalized = 'normalized' in model_split
+    algo = ecg_qc.ecg_qc(sampling_frequency=sf, model=model_path,
+                         normalized=is_normalized)
 
     key = json.loads(os.getenv(GRAFANA_API_KEY_ENV_VAR))['key']
     grafana_client = GrafanaClient(GRAFANA_URL, key)
