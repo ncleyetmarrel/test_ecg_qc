@@ -19,7 +19,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements_dev.txt
       - name: Lint
-        run: flake8 --ignore=E501 dags/ tests/ src/
+        run: |
+          flake8 dags/ src/
+          flake8 --ignore=E501 tests/
 
   sast:
     runs-on: ubuntu-20.04
